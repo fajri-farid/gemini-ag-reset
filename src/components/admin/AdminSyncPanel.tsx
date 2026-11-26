@@ -14,7 +14,7 @@ import {
   isoToDateInputValue,
   type AdminSyncResponse,
 } from "@/lib/admin-api";
-import { formatTimestamp } from "@/lib/datetime";
+import { formatDurationMs, formatTimestamp } from "@/lib/datetime";
 import { buildCanonicalTweetUrl } from "@/lib/tweet-url";
 import type { SyncStatus } from "@/lib/types";
 
@@ -291,7 +291,7 @@ export function AdminSyncPanel({
               Fetched {lastSyncResult.log.fetchedCount} · Saved{" "}
               {lastSyncResult.log.savedCount} · Skipped{" "}
               {lastSyncResult.log.skippedCount} ·{" "}
-              {lastSyncResult.log.durationMs}ms
+              {formatDurationMs(lastSyncResult.log.durationMs)}
             </p>
           </div>
 

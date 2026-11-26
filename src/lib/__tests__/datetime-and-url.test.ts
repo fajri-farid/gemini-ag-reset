@@ -3,6 +3,7 @@ import {
   formatDateKeyLabel,
   formatDateKeyWithWeekday,
   formatDaysMetric,
+  formatDurationMs,
   formatGapBadge,
   formatMonthYear,
   formatRelativeTime,
@@ -105,6 +106,12 @@ describe("datetime & timezone helpers", () => {
     expect(formatGapBadge(58, "en")).toBe("58 minutes apart");
     expect(formatGapBadge(3543, "en")).toBe("2 days, 11 hours, 3 minutes apart");
     expect(formatGapBadge(3543, "id")).toBe("Jeda 2 hari, 11 jam, 3 menit");
+
+    expect(formatDurationMs(0)).toBe("0ms");
+    expect(formatDurationMs(420)).toBe("420ms");
+    expect(formatDurationMs(17053)).toBe("17.1s");
+    expect(formatDurationMs(60000)).toBe("1m");
+    expect(formatDurationMs(72400)).toBe("1m 12s");
   });
 });
 
