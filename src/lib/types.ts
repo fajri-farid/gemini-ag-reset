@@ -12,20 +12,30 @@ export type SyncErrorStage = "none" | "x_fetch" | "gemini" | "db";
 
 export type HeroState = "reset_recently" | "waiting" | "empty";
 
-export interface ResetRecord {
+export interface ResetEvidence {
   tweetId: string;
   tweetUrl: string;
   tweetText: string;
+  resetAt: string;
+}
+
+export interface ResetRecord extends ResetEvidence {
   summary: string | null;
   confidence: number | null;
   source: ResetSource;
-  resetAt: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ResetFeedItem extends ResetRecord {
-  gapDaysFromPrevious: number | null;
+export type ResetFeedCursor = Pick<ResetEvidence, "tweetId" | "resetAt">;
+
+export interface ResetFeedItem extends ResetEvidence {
+  gapMinutesFromPrevious: number | null;
+}
+
+export interface ResetFeedPage {
+  items: ResetFeedItem[];
+  nextCursor: ResetFeedCursor | null;
 }
 
 export interface SyncStatus {
@@ -71,7 +81,7 @@ export interface HeatmapCell {
   isFuture: boolean;
   isToday: boolean;
   hasReset: boolean;
-  resets: ResetRecord[];
+  resets: ResetEvidence[];
 }
 
 export interface HeatmapWeek {
@@ -97,5 +107,13 @@ export interface PublicTrackerPayload {
     SyncStatus,
     "lastCheckedAt" | "lastStatus" | "trackingStartedAt"
   >;
+  generatedAt: string;
+}
+
+export interface PublicTrackerHomeData {
+  feed: ResetFeedPage;
+  heatmapResets: ResetEvidence[];
+  historicalMetrics: TrackerMetrics;
+  syncStatus: PublicTrackerPayload["syncStatus"];
   generatedAt: string;
 }

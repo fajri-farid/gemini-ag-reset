@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyAdminRequest } from "@/lib/server/admin-auth";
-import { revalidatePublicResets } from "@/lib/server/public-data";
+import { revalidatePublicTrackerStatus } from "@/lib/server/public-data";
 import { getResetRepository } from "@/lib/server/reset-repository";
 
 const UpdateStatusSchema = z.object({
@@ -46,6 +46,6 @@ export async function PATCH(request: Request) {
     trackingStartedAt: new Date(parsed.data.trackingStartedAt).toISOString(),
   });
 
-  revalidatePublicResets();
+  revalidatePublicTrackerStatus();
   return NextResponse.json({ syncStatus });
 }

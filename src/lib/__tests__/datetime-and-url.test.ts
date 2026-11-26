@@ -101,9 +101,10 @@ describe("datetime & timezone helpers", () => {
     expect(formatDaysMetric(6, "id")).toBe("6.0 hr");
 
     expect(formatGapBadge(null, "en")).toBeNull();
-    expect(formatGapBadge(0.4, "en")).toBe("<1d");
-    expect(formatGapBadge(5.2, "en")).toBe("+5d");
-    expect(formatGapBadge(5.2, "id")).toBe("+5 hr");
+    expect(formatGapBadge(0, "en")).toBe("Same minute");
+    expect(formatGapBadge(58, "en")).toBe("58 minutes apart");
+    expect(formatGapBadge(3543, "en")).toBe("2 days, 11 hours, 3 minutes apart");
+    expect(formatGapBadge(3543, "id")).toBe("Jeda 2 hari, 11 jam, 3 menit");
   });
 });
 

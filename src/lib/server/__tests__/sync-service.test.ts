@@ -18,9 +18,9 @@ function makeTweet(
 }
 
 describe("runSync", () => {
-  it("updates lastCheckedAt and logs ok when 0 new tweets are returned", async () => {
+  it("updates lastCheckedAt, revalidates, and logs ok with no new tweets", async () => {
     const repo = new InMemoryResetRepository();
-    let revalidated = false;
+    const archiveInvalidations: boolean[] = [];
 
     const result = await runSync({
       trigger: "cron",
@@ -31,8 +31,8 @@ describe("runSync", () => {
           throw new Error("Should not classify");
         },
       },
-      onRevalidate: () => {
-        revalidated = true;
+      onRevalidate: (resetsChanged) => {
+        archiveInvalidations.push(resetsChanged);
       },
       now: () => new Date("2026-11-26T12:00:00.000Z"),
     });
@@ -40,7 +40,7 @@ describe("runSync", () => {
     expect(result.log.status).toBe("ok");
     expect(result.log.savedCount).toBe(0);
     expect(result.savedResets).toHaveLength(0);
-    expect(revalidated).toBe(false);
+    expect(archiveInvalidations).toEqual([false]);
 
     const status = await repo.getSyncStatus();
     expect(status.lastCheckedAt).toBe("2026-11-26T12:00:00.000Z");
@@ -49,7 +49,7 @@ describe("runSync", () => {
 
   it("saves qualifying tweets (>= 0.85), skips low-confidence/non-reset tweets, and advances lastSeenTweetId", async () => {
     const repo = new InMemoryResetRepository();
-    let revalidatedCount = 0;
+    const archiveInvalidations: boolean[] = [];
 
     const tweets = [
       makeTweet(
@@ -103,8 +103,8 @@ describe("runSync", () => {
       repository: repo,
       xProvider,
       classifier,
-      onRevalidate: () => {
-        revalidatedCount += 1;
+      onRevalidate: (resetsChanged) => {
+        archiveInvalidations.push(resetsChanged);
       },
       now: () => new Date("2026-11-26T12:00:00.000Z"),
     });
@@ -116,7 +116,7 @@ describe("runSync", () => {
     expect(result.savedResets.map((r) => r.tweetId)).toEqual([
       "1860000000000000302",
     ]);
-    expect(revalidatedCount).toBe(1);
+    expect(archiveInvalidations).toEqual([true]);
 
     const saved = await repo.listResets();
     expect(saved).toHaveLength(1);

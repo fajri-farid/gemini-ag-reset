@@ -15,5 +15,7 @@ export async function GET(request: Request) {
   const repo = getResetRepository();
   const logs = await repo.listSyncLogs(parsedLimit);
 
-  return NextResponse.json({ logs });
+  return NextResponse.json({ logs }, {
+    headers: { "Cache-Control": "private, no-store" },
+  });
 }

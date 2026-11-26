@@ -5,10 +5,10 @@ import type {
   HeatmapCell,
   HeatmapWeek,
   Locale,
-  ResetRecord,
+  ResetEvidence,
 } from "./types";
 
-const DEFAULT_MAX_WEEKS = 52;
+export const HEATMAP_MAX_WEEKS = 52;
 
 function parseDateKey(dateKey: string): Date {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey);
@@ -60,7 +60,7 @@ function formatShortMonth(dateKey: string, locale: Locale): string {
 }
 
 export interface BuildDynamicHeatmapOptions {
-  resets: readonly ResetRecord[];
+  resets: readonly ResetEvidence[];
   trackingStartedAt: string;
   timeZone: string;
   locale?: Locale;
@@ -74,11 +74,11 @@ export function buildDynamicHeatmap({
   timeZone,
   locale = "en",
   now = new Date(),
-  maxWeeks = DEFAULT_MAX_WEEKS,
+  maxWeeks = HEATMAP_MAX_WEEKS,
 }: BuildDynamicHeatmapOptions): DynamicHeatmapData {
   const todayKey = toDateKeyInTimeZone(now, timeZone);
   const descendingResets = sortResetsDescending(resets);
-  const resetsByDate = new Map<string, ResetRecord[]>();
+  const resetsByDate = new Map<string, ResetEvidence[]>();
 
   let earliestResetKey: string | null = null;
   for (const record of descendingResets) {

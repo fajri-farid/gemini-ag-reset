@@ -206,17 +206,36 @@ export function formatDaysMetric(days: number | null, locale: Locale): string {
 }
 
 export function formatGapBadge(
-  gapDays: number | null,
+  gapMinutes: number | null,
   locale: Locale,
 ): string | null {
-  if (gapDays === null || !Number.isFinite(gapDays)) {
+  if (gapMinutes === null || !Number.isFinite(gapMinutes)) {
     return null;
   }
-
-  if (gapDays < 1) {
-    return locale === "id" ? "<1 hr" : "<1d";
+  if (gapMinutes === 0) {
+    return locale === "id" ? "Menit yang sama" : "Same minute";
   }
 
-  const rounded = Math.round(gapDays);
-  return locale === "id" ? `+${rounded} hr` : `+${rounded}d`;
+  const duration = {
+    days: Math.floor(gapMinutes / (24 * 60)),
+    hours: Math.floor(gapMinutes / 60) % 24,
+    minutes: gapMinutes % 60,
+  };
+  const intlLocale = toIntlLocale(locale);
+  const { DurationFormat } = Intl as typeof Intl & {
+    DurationFormat?: new (locale: string, options: { style: "long" }) => {
+      format(value: typeof duration): string;
+    };
+  };
+  const units = ["day", "hour", "minute"] as const;
+  const formatted = DurationFormat
+    ? new DurationFormat(intlLocale, { style: "long" }).format(duration)
+    : new Intl.ListFormat(intlLocale, { type: "unit" }).format(
+        units.flatMap((unit) => {
+          const value = duration[`${unit}s`];
+          return value ? [new Intl.NumberFormat(intlLocale, { style: "unit", unit, unitDisplay: "long" }).format(value)] : [];
+        }),
+      );
+
+  return locale === "id" ? `Jeda ${formatted}` : `${formatted} apart`;
 }

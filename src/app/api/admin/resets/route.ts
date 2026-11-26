@@ -37,7 +37,9 @@ export async function GET(request: Request) {
     repo.getSyncStatus(),
   ]);
 
-  return NextResponse.json({ resets, syncStatus });
+  return NextResponse.json({ resets, syncStatus }, {
+    headers: { "Cache-Control": "private, no-store" },
+  });
 }
 
 export async function POST(request: Request) {

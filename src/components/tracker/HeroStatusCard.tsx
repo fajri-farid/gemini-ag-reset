@@ -3,11 +3,11 @@ import { ArrowUpRight, Clock, Zap } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { formatRelativeTime, formatTimestamp } from "@/lib/datetime";
 import type { Dictionary } from "@/lib/i18n";
-import type { HeroState, Locale, ResetRecord } from "@/lib/types";
+import type { HeroState, Locale, ResetEvidence } from "@/lib/types";
 
 interface HeroStatusCardProps {
   heroState: HeroState;
-  latestReset: ResetRecord | null;
+  latestReset: ResetEvidence | null;
   dict: Dictionary;
   locale: Locale;
   timeZone: string;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyAdminRequest } from "@/lib/server/admin-auth";
+import { revalidatePublicTrackerStatus } from "@/lib/server/public-data";
 import { runSync } from "@/lib/server/sync-service";
 
 const TriggerSyncSchema = z.object({
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
   const result = await runSync({
     trigger: dryRun ? "admin_dry_run" : "admin_live",
     dryRun,
+    onRevalidate: revalidatePublicTrackerStatus,
   });
 
   return NextResponse.json({

@@ -8,7 +8,6 @@ import type {
   SyncTrigger,
 } from "@/lib/types";
 import { sanitizeErrorMessage } from "./error-sanitizer";
-import { revalidatePublicResets } from "./public-data";
 import {
   RESET_CONFIDENCE_THRESHOLD,
   createDefaultResetClassifier,
@@ -27,7 +26,7 @@ export interface RunSyncOptions {
   repository?: ResetRepository;
   xProvider?: XDataProvider;
   classifier?: ResetClassifier;
-  onRevalidate?: () => void;
+  onRevalidate?: (resetsChanged: boolean) => void;
   now?: () => Date;
 }
 
@@ -72,7 +71,7 @@ export async function runSync(options: RunSyncOptions): Promise<RunSyncResult> {
   const repo = options.repository ?? getResetRepository();
   const xProvider = options.xProvider ?? createDefaultXDataProvider();
   const classifier = options.classifier ?? createDefaultResetClassifier();
-  const onRevalidate = options.onRevalidate ?? revalidatePublicResets;
+  const { onRevalidate } = options;
 
   const status = await repo.getSyncStatus();
   const ranAtIso = startedAt.toISOString();
@@ -91,6 +90,7 @@ export async function runSync(options: RunSyncOptions): Promise<RunSyncResult> {
         lastStatus: "error",
         lastErrorMessage: errorMessage,
       });
+      onRevalidate?.(false);
     }
     const log = await repo.appendSyncLog({
       ranAt: ranAtIso,
@@ -123,6 +123,7 @@ export async function runSync(options: RunSyncOptions): Promise<RunSyncResult> {
           lastStatus: "error",
           lastErrorMessage: errorMessage,
         });
+        onRevalidate?.(savedResets.length > 0);
       }
       const log = await repo.appendSyncLog({
         ranAt: ranAtIso,
@@ -162,6 +163,7 @@ export async function runSync(options: RunSyncOptions): Promise<RunSyncResult> {
           lastStatus: "error",
           lastErrorMessage: errorMessage,
         });
+        onRevalidate?.(savedResets.length > 0);
         const log = await repo.appendSyncLog({
           ranAt: ranAtIso,
           trigger: options.trigger,
@@ -205,6 +207,9 @@ export async function runSync(options: RunSyncOptions): Promise<RunSyncResult> {
       });
     } catch (error) {
       const errorMessage = sanitizeErrorMessage(error);
+      if (savedResets.length > 0) {
+        onRevalidate?.(true);
+      }
       const log = await repo.appendSyncLog({
         ranAt: ranAtIso,
         trigger: options.trigger,
@@ -220,9 +225,7 @@ export async function runSync(options: RunSyncOptions): Promise<RunSyncResult> {
       return { log, savedResets, dryRun };
     }
 
-    if (savedResets.length > 0) {
-      onRevalidate();
-    }
+    onRevalidate?.(savedResets.length > 0);
   }
 
   const log = await repo.appendSyncLog({

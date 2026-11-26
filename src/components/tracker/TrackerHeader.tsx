@@ -39,10 +39,10 @@ export function TrackerHeader({
             <Image
               src="/gemini logo.webp"
               alt=""
-              width={28}
-              height={28}
-              priority
-              className="h-7 w-7 object-contain"
+              width={24}
+              height={24}
+              loading="eager"
+              className="h-6 w-6 object-contain"
               aria-hidden="true"
             />
           </div>

@@ -317,7 +317,7 @@ export function ResetHeatmap({
           <div
             className="inline-flex w-fit items-center overflow-hidden rounded-lg border-2 border-ink bg-surface shadow-[2px_2px_0px_#111111]"
             role="group"
-            aria-label="Timezone"
+            aria-label={dict.heatmap.timezoneSwitchLabel}
           >
             <button
               type="button"

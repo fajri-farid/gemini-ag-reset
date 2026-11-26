@@ -5,6 +5,7 @@ import {
   computeMetrics,
   sortResetsDescending,
 } from "../metrics";
+import { paginateResetFeed } from "../reset-feed";
 import type { ResetRecord } from "../types";
 
 function makeReset(tweetId: string, resetAt: string): ResetRecord {
@@ -20,6 +21,37 @@ function makeReset(tweetId: string, resetAt: string): ResetRecord {
     updatedAt: resetAt,
   };
 }
+
+describe("paginateResetFeed", () => {
+  it("returns five announcements then two at a time with the correct gaps at page boundaries", () => {
+    const resets = Array.from({ length: 10 }, (_, i) =>
+      makeReset(String(1010 - i), new Date(Date.UTC(2026, 10, 26 - i * 2)).toISOString()),
+    );
+
+    const first = paginateResetFeed(resets, 5);
+    const second = paginateResetFeed(resets, 2, first.nextCursor!);
+    const third = paginateResetFeed(resets, 2, second.nextCursor!);
+    const last = paginateResetFeed(resets, 2, third.nextCursor!);
+
+    expect(first.items.map((item) => item.tweetId)).toEqual(["1010", "1009", "1008", "1007", "1006"]);
+    expect(first.items.at(-1)?.gapMinutesFromPrevious).toBe(2880);
+    expect(second.items.map((item) => item.tweetId)).toEqual(["1005", "1004"]);
+    expect(second.items.at(-1)?.gapMinutesFromPrevious).toBe(2880);
+    expect(third.items.map((item) => item.tweetId)).toEqual(["1003", "1002"]);
+    expect(last.items.map((item) => item.tweetId)).toEqual(["1001"]);
+    expect(last.items[0].gapMinutesFromPrevious).toBeNull();
+    expect(last.nextCursor).toBeNull();
+  });
+
+  it("resumes by timestamp and ID after the cursor record is removed", () => {
+    const instant = "2026-11-26T12:00:00.000Z";
+    const resets = [makeReset("1003", instant), makeReset("1001", instant)];
+    const next = paginateResetFeed(resets, 2, { tweetId: "1002", resetAt: instant });
+
+    expect(next.items.map((item) => item.tweetId)).toEqual(["1001"]);
+    expect(paginateResetFeed(resets, 2, { tweetId: "1001", resetAt: instant }).items).toEqual([]);
+  });
+});
 
 describe("computeHeroState", () => {
   const now = new Date("2026-11-26T12:00:00.000Z");
@@ -99,7 +131,7 @@ describe("computeMetrics", () => {
 });
 
 describe("sortResetsDescending & computeFeedIntervals", () => {
-  it("sorts descending and attaches gapDaysFromPrevious except for oldest item", () => {
+  it("sorts descending and attaches a gap in minutes except for the oldest item", () => {
     const resets = [
       makeReset("1001", "2026-11-01T12:00:00.000Z"),
       makeReset("1003", "2026-11-20T00:00:00.000Z"),
@@ -110,10 +142,22 @@ describe("sortResetsDescending & computeFeedIntervals", () => {
     expect(sorted.map((r) => r.tweetId)).toEqual(["1003", "1002", "1001"]);
 
     const feed = computeFeedIntervals(resets);
-    expect(feed.map((item) => item.gapDaysFromPrevious)).toEqual([
-      9.5,
-      9,
+    expect(feed.map((item) => item.gapMinutesFromPrevious)).toEqual([
+      13680,
+      12960,
       null,
     ]);
+  });
+
+  it("matches the displayed clock minutes without rounding gaps up to full days", () => {
+    const resets = [
+      makeReset("1004", "2026-11-26T15:19:03+08:00"),
+      makeReset("1003", "2026-11-24T04:16:52+08:00"),
+      makeReset("1002", "2026-11-21T17:18:28+08:00"),
+      makeReset("1001", "2026-11-18T07:38:17+08:00"),
+    ];
+
+    expect(computeFeedIntervals(resets).map((item) => item.gapMinutesFromPrevious))
+      .toEqual([3543, 3538, 4900, null]);
   });
 });

@@ -3,6 +3,7 @@ import type { Locale } from "./types";
 export interface Dictionary {
   locale: Locale;
   header: {
+    skipToContent: string;
     tagline: string;
     lastCheckedPrefix: string;
     checkingDelayed: string;
@@ -26,6 +27,7 @@ export interface Dictionary {
     longestWait: string;
   };
   heatmap: {
+    timezoneSwitchLabel: string;
     title: string;
     trackingSincePrefix: string;
     varunTimeLabel: string;
@@ -47,6 +49,9 @@ export interface Dictionary {
     subtitle: string;
     emptyState: string;
     viewOnX: string;
+    loadMore: string;
+    loadingMore: string;
+    loadError: string;
   };
   footer: {
     disclaimer: string;
@@ -58,6 +63,7 @@ export interface Dictionary {
 const EN_DICTIONARY: Dictionary = {
   locale: "en",
   header: {
+    skipToContent: "Skip to content",
     tagline:
       "We watch @_mohansolo for Gemini quota resets in Antigravity, so you don't have to.",
     lastCheckedPrefix: "Last checked:",
@@ -83,6 +89,7 @@ const EN_DICTIONARY: Dictionary = {
     longestWait: "Longest wait",
   },
   heatmap: {
+    timezoneSwitchLabel: "Time zone",
     title: "Gemini reset history",
     trackingSincePrefix: "Tracking since",
     varunTimeLabel: "Varun time (PT)",
@@ -104,6 +111,9 @@ const EN_DICTIONARY: Dictionary = {
     subtitle: "Every announcement, preserved for history",
     emptyState: "No resets recorded yet.",
     viewOnX: "View on X",
+    loadMore: "Load more announcements",
+    loadingMore: "Loading announcements…",
+    loadError: "Couldn't load more announcements. Try again.",
   },
   footer: {
     disclaimer:
@@ -116,6 +126,7 @@ const EN_DICTIONARY: Dictionary = {
 const ID_DICTIONARY: Dictionary = {
   locale: "id",
   header: {
+    skipToContent: "Lewati ke konten",
     tagline:
       "Kami memantau @_mohansolo untuk pengumuman reset kuota Gemini di Antigravity, biar kamu tidak perlu cek manual.",
     lastCheckedPrefix: "Terakhir dicek:",
@@ -141,6 +152,7 @@ const ID_DICTIONARY: Dictionary = {
     longestWait: "Penantian terlama",
   },
   heatmap: {
+    timezoneSwitchLabel: "Zona waktu",
     title: "Riwayat reset Gemini",
     trackingSincePrefix: "Dipantau sejak",
     varunTimeLabel: "Waktu Varun (PT)",
@@ -162,6 +174,9 @@ const ID_DICTIONARY: Dictionary = {
     subtitle: "Setiap pengumuman, tersimpan rapi sebagai bukti",
     emptyState: "Belum ada reset yang tercatat.",
     viewOnX: "Lihat di X",
+    loadMore: "Muat pengumuman lainnya",
+    loadingMore: "Memuat pengumuman…",
+    loadError: "Pengumuman gagal dimuat. Coba lagi.",
   },
   footer: {
     disclaimer:

@@ -106,7 +106,7 @@ function main() {
 
   for (const rootFile of [
     "package.json",
-    "vitest.config.ts",
+    "vitest.config.mts",
     "commitlint.config.mjs",
     "next.config.ts",
     "eslint.config.mjs",
