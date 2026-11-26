@@ -1,0 +1,1 @@
+pnpm run security:check && pnpm typecheck && pnpm lint && pnpm test

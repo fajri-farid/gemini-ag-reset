@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-canvas: #fdf8ee;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4efe4;
+  --color-heatmap-empty: #ede7da;
+  --color-heatmap-empty-border: #d6cfc0;
+  --color-ink: #111111;
+  --color-ink-muted: #52525b;
+  --color-gemini-blue: #2563eb;
+  --color-gemini-blue-hover: #1d4ed8;
+  --color-gemini-sky: #4285f4;
+  --color-gemini-violet: #7c3aed;
+  --color-gemini-tint: #eff6ff;
+  --color-reset-live: #10b981;
+  --color-reset-live-bg: #ecfdf5;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+
+  :where(
+      a[href],
+      button:not(:disabled),
+      [role="button"]:not(:disabled),
+      [role="tab"]:not(:disabled),
+      summary
+    ) {
+    cursor: pointer;
+  }
+
+  :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-gemini-blue);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .neo-card {
+    background-color: var(--color-surface);
+    border: 2px solid var(--color-ink);
+    border-radius: 0.75rem;
+    box-shadow: 4px 4px 0px var(--color-ink);
+  }
+
+  .neo-interactive {
+    border: 2px solid var(--color-ink);
+    border-radius: 0.5rem;
+    box-shadow: 2px 2px 0px var(--color-ink);
+    transition:
+      background-color 150ms ease,
+      color 150ms ease,
+      border-color 150ms ease;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition:
+        background-color 150ms ease,
+        color 150ms ease,
+        border-color 150ms ease,
+        translate 150ms ease,
+        box-shadow 150ms ease;
+
+      &:hover:not(:disabled) {
+        translate: -1px -1px;
+        box-shadow: 3px 3px 0px var(--color-ink);
+      }
+
+      &:active:not(:disabled) {
+        translate: 2px 2px;
+        box-shadow: 0px 0px 0px var(--color-ink);
+      }
+    }
+  }
+
+  .neo-dotted-grid {
+    background-image: radial-gradient(#1111111f 1px, transparent 1px);
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--color-ink) 12%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 16px 16px;
+  }
 }
