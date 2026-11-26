@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   formatDateKeyLabel,
+  formatDateKeyWithWeekday,
   formatDaysMetric,
   formatGapBadge,
   formatMonthYear,
@@ -74,6 +75,9 @@ describe("datetime & timezone helpers", () => {
 
     expect(formatMonthYear("2026-11-01", "en")).toContain("2026");
     expect(formatDateKeyLabel("2026-11-26", "en")).toContain("26");
+    expect(formatDateKeyWithWeekday("2026-11-26", "en")).toContain("Thu");
+    expect(formatDateKeyWithWeekday("2026-11-26", "id")).toContain("26");
+    expect(formatDateKeyWithWeekday("invalid-key", "en")).toBe("invalid-key");
 
     expect(formatRelativeTime("2026-11-26T11:59:45.000Z", "en", now)).toBe(
       "just now",
@@ -119,6 +123,14 @@ describe("i18n dictionaries", () => {
     expect(Object.keys(en)).toEqual(Object.keys(id));
     expect(en.heatmap.weekdaysShort).toHaveLength(7);
     expect(id.heatmap.weekdaysShort).toHaveLength(7);
+    expect(en.heatmap.todayBadge).toBe("Today");
+    expect(id.heatmap.todayBadge).toBe("Hari ini");
+    expect(en.heatmap.legendToday).toBeTruthy();
+    expect(id.heatmap.legendToday).toBeTruthy();
+    expect(en.heatmap.upcomingLabel).toBeTruthy();
+    expect(id.heatmap.upcomingLabel).toBeTruthy();
+    expect(en.heatmap.resetsCountUnit).toBeTruthy();
+    expect(id.heatmap.resetsCountUnit).toBeTruthy();
     expect(id.hero.resetRecentlyBadge).toBeTruthy();
     expect(en.hero.resetRecentlyBadge).toBe("RESET RECENTLY");
   });

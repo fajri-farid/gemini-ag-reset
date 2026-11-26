@@ -102,20 +102,20 @@ export function buildDynamicHeatmap({
     trackingStartKey = todayKey;
   }
 
-  let rangeStartKey = startOfIsoWeek(trackingStartKey);
+  const weeksCount = Math.max(1, maxWeeks);
+  const currentWeekStartKey = startOfIsoWeek(todayKey);
+  const rangeStartKey = addDaysToDateKey(
+    currentWeekStartKey,
+    -(weeksCount - 1) * 7,
+  );
   const rangeEndKey = endOfIsoWeek(todayKey);
 
-  const safeMaxWeeks = Math.max(1, maxWeeks);
-  const currentWeekStartKey = startOfIsoWeek(todayKey);
-  const minAllowedStartKey = addDaysToDateKey(
-    currentWeekStartKey,
-    -(safeMaxWeeks - 1) * 7,
-  );
-  if (rangeStartKey < minAllowedStartKey) {
-    rangeStartKey = minAllowedStartKey;
-  }
+  const rawWeeks: Array<{
+    weekStartKey: string;
+    monthTransitionKey: string | null;
+    cells: HeatmapCell[];
+  }> = [];
 
-  const weeks: HeatmapWeek[] = [];
   let cursorWeekStart = rangeStartKey;
   let totalResetDays = 0;
 
@@ -148,21 +148,34 @@ export function buildDynamicHeatmap({
       });
     }
 
-    const monthLabel =
-      weeks.length === 0
-        ? formatShortMonth(cells[0].dateKey, locale)
-        : monthTransitionKey
-          ? formatShortMonth(monthTransitionKey, locale)
-          : null;
-
-    weeks.push({
+    rawWeeks.push({
       weekStartKey: cursorWeekStart,
-      monthLabel,
+      monthTransitionKey,
       cells,
     });
 
     cursorWeekStart = addDaysToDateKey(cursorWeekStart, 7);
   }
+
+  const weeks: HeatmapWeek[] = rawWeeks.map((raw, index) => {
+    let monthLabel: string | null = null;
+
+    if (index === 0) {
+      if (raw.monthTransitionKey) {
+        monthLabel = formatShortMonth(raw.monthTransitionKey, locale);
+      } else if (!rawWeeks[1]?.monthTransitionKey) {
+        monthLabel = formatShortMonth(raw.cells[0].dateKey, locale);
+      }
+    } else if (raw.monthTransitionKey) {
+      monthLabel = formatShortMonth(raw.monthTransitionKey, locale);
+    }
+
+    return {
+      weekStartKey: raw.weekStartKey,
+      monthLabel,
+      cells: raw.cells,
+    };
+  });
 
   return {
     trackingStartKey,

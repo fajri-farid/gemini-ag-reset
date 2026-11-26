@@ -8,8 +8,9 @@ export interface DeveloperLink {
 
 export const siteConfig = {
   name: "Gemini Resets",
+  tabTitle: "Gemini Resets — Antigravity Quota Tracker",
   shortDescription:
-    "We watch @_mohansolo for Gemini reset announcements, so you don't have to.",
+    "We watch @_mohansolo for Gemini quota resets in Antigravity, so you don't have to.",
   targetAccount: {
     handle: "@_mohansolo",
     username: "_mohansolo",

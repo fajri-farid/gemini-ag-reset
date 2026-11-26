@@ -32,9 +32,14 @@ export interface Dictionary {
     localTimeLabel: string;
     legendReset: string;
     legendNoReset: string;
+    legendBeforeTracking: string;
+    legendToday: string;
+    todayBadge: string;
+    upcomingLabel: string;
     weekdaysShort: readonly [string, string, string, string, string, string, string];
     openTweetCta: string;
     resetsOnDayLabel: string;
+    resetsCountUnit: string;
     closePopoverLabel: string;
   };
   feed: {
@@ -54,7 +59,7 @@ const EN_DICTIONARY: Dictionary = {
   locale: "en",
   header: {
     tagline:
-      "We watch @_mohansolo for Gemini reset announcements, so you don't have to.",
+      "We watch @_mohansolo for Gemini quota resets in Antigravity, so you don't have to.",
     lastCheckedPrefix: "Last checked:",
     checkingDelayed: "Check delayed · showing saved data",
     neverChecked: "Not checked yet",
@@ -84,9 +89,14 @@ const EN_DICTIONARY: Dictionary = {
     localTimeLabel: "Local time",
     legendReset: "Reset",
     legendNoReset: "No reset",
+    legendBeforeTracking: "Before tracking",
+    legendToday: "Today",
+    todayBadge: "Today",
+    upcomingLabel: "Upcoming",
     weekdaysShort: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     openTweetCta: "Open Tweet",
     resetsOnDayLabel: "Reset announced",
+    resetsCountUnit: "resets announced",
     closePopoverLabel: "Close details",
   },
   feed: {
@@ -107,7 +117,7 @@ const ID_DICTIONARY: Dictionary = {
   locale: "id",
   header: {
     tagline:
-      "Kami memantau @_mohansolo untuk pengumuman reset Gemini, biar kamu tidak perlu cek manual.",
+      "Kami memantau @_mohansolo untuk pengumuman reset kuota Gemini di Antigravity, biar kamu tidak perlu cek manual.",
     lastCheckedPrefix: "Terakhir dicek:",
     checkingDelayed: "Pengecekan tertunda · menampilkan data tersimpan",
     neverChecked: "Belum pernah dicek",
@@ -137,9 +147,14 @@ const ID_DICTIONARY: Dictionary = {
     localTimeLabel: "Waktu lokal",
     legendReset: "Reset",
     legendNoReset: "Tidak ada reset",
+    legendBeforeTracking: "Sebelum dipantau",
+    legendToday: "Hari ini",
+    todayBadge: "Hari ini",
+    upcomingLabel: "Belum tiba",
     weekdaysShort: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
     openTweetCta: "Buka Tweet",
     resetsOnDayLabel: "Reset diumumkan",
+    resetsCountUnit: "reset diumumkan",
     closePopoverLabel: "Tutup detail",
   },
   feed: {

@@ -17,7 +17,7 @@ function makeReset(tweetId: string, resetAt: string): ResetRecord {
 }
 
 describe("buildDynamicHeatmap", () => {
-  it("starts dynamically from trackingStartedAt without fake months of empty cells", () => {
+  it("renders a full 52-week grid while distinguishing days before trackingStartedAt and future days", () => {
     const now = new Date("2026-11-26T12:00:00.000Z");
     const resets = [
       makeReset("1001", "2026-11-05T18:00:00.000Z"),
@@ -32,13 +32,24 @@ describe("buildDynamicHeatmap", () => {
       now,
     });
 
-    // Nov 1, 2026 (Sunday, ISO week starts Oct 26) through Nov 26, 2026 (week ends Nov 29) -> 5 weeks
     expect(heatmap.trackingStartKey).toBe("2026-11-01");
-    expect(heatmap.rangeStartKey).toBe("2026-10-26");
     expect(heatmap.rangeEndKey).toBe("2026-11-29");
-    expect(heatmap.totalWeeks).toBe(5);
+    expect(heatmap.totalWeeks).toBe(52);
+    expect(heatmap.weeks).toHaveLength(52);
     expect(heatmap.totalResetDays).toBe(2);
     expect(heatmap.weeks[0].cells).toHaveLength(7);
+
+    const allCells = heatmap.weeks.flatMap((w) => w.cells);
+    const beforeTracking = allCells.find((c) => c.dateKey === "2026-10-31");
+    const inTracking = allCells.find((c) => c.dateKey === "2026-11-10");
+    const futureCell = allCells.find((c) => c.dateKey === "2026-11-28");
+
+    expect(beforeTracking?.inTrackingRange).toBe(false);
+    expect(beforeTracking?.isFuture).toBe(false);
+    expect(inTracking?.inTrackingRange).toBe(true);
+    expect(inTracking?.isFuture).toBe(false);
+    expect(futureCell?.isFuture).toBe(true);
+    expect(futureCell?.inTrackingRange).toBe(false);
   });
 
   it("caps dynamic range at maxWeeks (52 weeks) for history older than 1 year", () => {

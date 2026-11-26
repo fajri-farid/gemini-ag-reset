@@ -113,6 +113,24 @@ export function formatDateKeyLabel(dateKey: string, locale: Locale): string {
   }).format(date);
 }
 
+export function formatDateKeyWithWeekday(
+  dateKey: string,
+  locale: Locale,
+): string {
+  const date = new Date(`${dateKey}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())) {
+    return dateKey;
+  }
+
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
+    timeZone: "UTC",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
 export function formatRelativeTime(
   iso: string,
   locale: Locale,

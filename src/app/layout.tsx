@@ -14,8 +14,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: siteConfig.name,
+  title: siteConfig.tabTitle,
   description: siteConfig.shortDescription,
+  openGraph: {
+    title: siteConfig.tabTitle,
+    description: siteConfig.shortDescription,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: siteConfig.tabTitle,
+    description: siteConfig.shortDescription,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
