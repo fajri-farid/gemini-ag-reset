@@ -417,10 +417,10 @@ export function ResetHeatmap({
                             }}
                             className={`${cellSizeClass} rounded-[5px] border-2 border-ink shadow-[2px_2px_0px_#111111] ring-offset-1 ring-offset-surface transition-colors ${
                               cell.hasReset
-                                ? `bg-gemini-blue ring-2 ring-gemini-violet hover:bg-gemini-violet ${
+                                ? `bg-gemini-blue ring-2 ring-gemini-blue hover:bg-gemini-blue-hover ${
                                     isSelected ? "ring-ink" : ""
                                   }`
-                                : "bg-heatmap-empty ring-2 ring-gemini-violet/80 hover:bg-gemini-tint"
+                                : "bg-heatmap-empty ring-2 ring-gemini-blue hover:bg-gemini-tint"
                             }`}
                           />
                         );
@@ -498,7 +498,7 @@ export function ResetHeatmap({
                             openTooltip(cell, event.currentTarget);
                             setSelectedDateKey(isSelected ? null : cell.dateKey);
                           }}
-                          className={`${cellSizeClass} rounded-[5px] border-[1.5px] border-ink bg-gemini-blue transition-colors hover:bg-gemini-violet ${
+                          className={`${cellSizeClass} rounded-[5px] border-[1.5px] border-ink bg-gemini-blue transition-colors hover:bg-gemini-blue-hover ${
                             isSelected
                               ? "ring-2 ring-ink ring-offset-2 ring-offset-surface"
                               : ""
@@ -556,7 +556,7 @@ export function ResetHeatmap({
                       href={item.tweetUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs font-bold text-gemini-blue hover:text-gemini-violet"
+                      className="inline-flex items-center gap-1 font-mono text-xs font-bold text-gemini-blue hover:text-gemini-blue-hover"
                     >
                       <span>{dict.heatmap.openTweetCta}</span>
                       <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -580,7 +580,7 @@ export function ResetHeatmap({
                 className="inline-flex items-center gap-2 rounded-lg border-2 border-ink bg-surface px-2.5 py-1 text-xs font-bold text-ink shadow-[2px_2px_0px_#111111] transition-colors hover:bg-gemini-tint"
               >
                 <span
-                  className="h-3 w-3 rounded-[3px] border-[1.5px] border-ink bg-heatmap-empty ring-2 ring-gemini-violet/80 ring-offset-1 ring-offset-surface"
+                  className="h-3 w-3 rounded-[3px] border-[1.5px] border-ink bg-heatmap-empty ring-2 ring-gemini-blue ring-offset-1 ring-offset-surface"
                   aria-hidden="true"
                 />
                 <span>
@@ -615,7 +615,7 @@ export function ResetHeatmap({
             </div>
             <div className="inline-flex items-center gap-2">
               <span
-                className="h-3.5 w-3.5 rounded-[4px] border-[1.5px] border-ink bg-heatmap-empty ring-2 ring-gemini-violet/80 ring-offset-1 ring-offset-surface"
+                className="h-3.5 w-3.5 rounded-[4px] border-[1.5px] border-ink bg-heatmap-empty ring-2 ring-gemini-blue ring-offset-1 ring-offset-surface"
                 aria-hidden="true"
               />
               <span>{dict.heatmap.legendToday}</span>
@@ -640,14 +640,14 @@ export function ResetHeatmap({
             margin: 0,
             visibility: resolvedLayout ? "visible" : "hidden",
           }}
-          className="fixed z-50 m-0 max-w-[240px] overflow-visible rounded-lg border-2 border-ink bg-ink px-3 py-2 text-left text-white shadow-[3px_3px_0px_#7c3aed]"
+          className="fixed z-50 m-0 max-w-[240px] overflow-visible rounded-lg border-2 border-ink bg-ink px-3 py-2 text-left text-white shadow-[3px_3px_0px_#2563eb]"
         >
           <div className="flex items-center gap-2">
             <span className="font-sans text-xs font-bold whitespace-nowrap">
               {formatDateKeyWithWeekday(activeTooltip.cell.dateKey, locale)}
             </span>
             {activeTooltip.cell.isToday && (
-              <span className="rounded bg-gemini-violet px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white">
+              <span className="rounded bg-gemini-blue px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white">
                 {dict.heatmap.todayBadge}
               </span>
             )}
