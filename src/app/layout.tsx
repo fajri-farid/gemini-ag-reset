@@ -13,12 +13,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const DEFAULT_SITE_URL = "https://geminireset.fajrifarid.com";
+
+function resolveMetadataBase(): URL {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (raw) {
+    try {
+      return new URL(raw);
+    } catch {
+      // Fallback ke domain produksi default jika format env tidak valid.
+    }
+  }
+  return new URL(DEFAULT_SITE_URL);
+}
+
 export const metadata: Metadata = {
+  metadataBase: resolveMetadataBase(),
   title: siteConfig.tabTitle,
   description: siteConfig.shortDescription,
   openGraph: {
     title: siteConfig.tabTitle,
     description: siteConfig.shortDescription,
+    siteName: siteConfig.name,
+    url: "/",
     type: "website",
   },
   twitter: {

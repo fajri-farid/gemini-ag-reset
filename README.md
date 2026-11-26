@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gemini Resets
 
-## Getting Started
+<p align="center">
+  <img src="./src/app/icon.png" alt="Logo Gemini Resets" width="96" />
+</p>
 
-First, run the development server:
+<p align="center"><strong>Riwayat pengumuman reset kuota Gemini di Antigravity, dalam satu tempat.</strong></p>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Pengumuman reset kuota Gemini mudah terlewat di linimasa X. Gemini Resets mengumpulkan pengumuman dari [@_mohansolo](https://x.com/_mohansolo) supaya kamu bisa langsung menjawab **kapan reset terakhir diumumkan?** Berandanya terbuka untuk semua orang tanpa login.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Apa yang bisa kamu lihat
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Kapan reset terakhir diumumkan.** Beranda menampilkan waktu sejak pengumuman terakhir dan memberi tanda jika pengumuman itu masih berumur kurang dari 24 jam.
+- **Seberapa sering pengumuman muncul.** Heatmap menampilkan hari-hari ketika ada pengumuman. Total reset, rata-rata jeda, dan penantian terlama memberi konteks dari riwayat yang tercatat.
+- **Apa isi pengumumannya.** Setiap catatan menyertakan teks pengumuman dan tautan langsung ke unggahan asli di X. Daftar riwayat juga menampilkan jeda antarpengumuman dalam hari, jam, dan menit.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Kamu bisa membaca tracker dalam bahasa Inggris atau Indonesia dan melihat riwayat dalam waktu setempat atau waktu Varun (PT).
 
-## Learn More
+## Bagaimana riwayatnya disusun
 
-To learn more about Next.js, take a look at the following resources:
+Pemeriksaan unggahan dijadwalkan setiap jam. Gemini membantu menyaring pengumuman reset dari unggahan lain.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Beranda menunjukkan kapan pengecekan terakhir berlangsung. Saat pengecekan tertunda, riwayat yang sudah tersimpan tetap bisa dibaca. Heatmap juga menandai kapan pemantauan dimulai, sehingga hari sebelum tanggal itu bisa dikenali sebagai periode yang belum dipantau.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Open source
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Gemini Resets adalah proyek independen oleh [Fajri Farid](https://fajrifarid.com) dan dirilis dengan [lisensi MIT](./LICENSE). Jika ada pengumuman yang terlewat atau salah tercatat, buka issue dan sertakan tautan ke unggahan aslinya.
