@@ -42,6 +42,21 @@
     outline: 2px solid var(--color-gemini-blue);
     outline-offset: 2px;
   }
+
+  dialog:modal {
+    overscroll-behavior: contain;
+  }
+
+  dialog::backdrop {
+    background-color: rgb(17 17 17 / 0.55);
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .admin-input:user-invalid {
+    border-color: var(--color-danger);
+    background-color: #fef2f2;
+  }
 }
 
 @layer components {
