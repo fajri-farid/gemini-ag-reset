@@ -103,6 +103,7 @@ function main() {
   const targetFiles = [];
   collectFilesRecursively(path.join(ROOT_DIR, "src"), targetFiles);
   collectFilesRecursively(path.join(ROOT_DIR, "scripts"), targetFiles);
+  collectFilesRecursively(path.join(ROOT_DIR, ".github"), targetFiles);
 
   for (const rootFile of [
     "package.json",
@@ -110,6 +111,8 @@ function main() {
     "commitlint.config.mjs",
     "next.config.ts",
     "eslint.config.mjs",
+    "CHANGELOG.md",
+    "README.md",
   ]) {
     const absPath = path.join(ROOT_DIR, rootFile);
     if (fs.existsSync(absPath)) {

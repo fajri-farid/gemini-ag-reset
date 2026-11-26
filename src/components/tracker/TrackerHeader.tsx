@@ -1,5 +1,7 @@
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Tag } from "lucide-react";
+import { CURRENT_TAG } from "@/config/releases";
 import { siteConfig } from "@/config/site";
 import { formatShortMinutesAgo } from "@/lib/datetime";
 import type { Dictionary } from "@/lib/i18n";
@@ -46,9 +48,22 @@ export function TrackerHeader({
               aria-hidden="true"
             />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-            {siteConfig.name}
-          </h1>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+              {siteConfig.name}
+            </h1>
+            <Link
+              href="/changelog"
+              className="neo-interactive inline-flex min-h-6 items-center gap-1 rounded-full bg-gemini-tint px-2.5 py-0.5 font-mono text-xs font-bold text-gemini-blue hover:bg-gemini-blue hover:text-white"
+            >
+              <Tag className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span>{CURRENT_TAG}</span>
+              <span className="sr-only">
+                {" "}
+                — {dict.header.versionBadgeContext}
+              </span>
+            </Link>
+          </div>
         </div>
 
         <div

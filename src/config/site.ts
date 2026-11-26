@@ -19,6 +19,7 @@ export const siteConfig = {
     timezone: "America/Los_Angeles",
   },
   defaultLocale: "en",
+  repositoryUrl: "https://github.com/fajri-farid/gemini-ag-reset",
   developer: {
     name: "Fajri Farid",
     fullName: "Muh. Fajri Farid",

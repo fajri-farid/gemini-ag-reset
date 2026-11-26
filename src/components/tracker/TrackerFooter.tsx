@@ -1,4 +1,6 @@
-import { AtSign, Briefcase, Code2, Globe } from "lucide-react";
+import Link from "next/link";
+import { AtSign, Briefcase, Code2, Globe, Tag } from "lucide-react";
+import { CURRENT_TAG } from "@/config/releases";
 import {
   getDeveloperLinks,
   siteConfig,
@@ -11,6 +13,7 @@ interface TrackerFooterProps {
   dict: Dictionary;
   locale: Locale;
   onLocaleChange: (locale: Locale) => void;
+  currentPath?: "/" | "/changelog";
 }
 
 function renderLinkIcon(id: DeveloperLinkId) {
@@ -30,6 +33,7 @@ export function TrackerFooter({
   dict,
   locale,
   onLocaleChange,
+  currentPath = "/",
 }: TrackerFooterProps) {
   const developerLinks = getDeveloperLinks();
 
@@ -77,23 +81,34 @@ export function TrackerFooter({
           </strong>
         </span>
 
-        {developerLinks.length > 0 && (
-          <ul className="flex flex-wrap items-center gap-2">
-            {developerLinks.map((link) => (
-              <li key={link.id}>
-                <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-md border border-ink/25 bg-surface px-2.5 py-1 font-mono text-xs font-medium text-ink transition-colors hover:border-ink hover:bg-gemini-tint"
-                >
-                  {renderLinkIcon(link.id)}
-                  <span>{link.label}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
+        <ul role="list" className="flex flex-wrap items-center gap-2">
+          <li>
+            <Link
+              href="/changelog"
+              aria-current={currentPath === "/changelog" ? "page" : undefined}
+              className="inline-flex min-h-6 items-center gap-1.5 rounded-md border border-ink/25 bg-surface px-2.5 py-1 font-mono text-xs font-semibold text-ink transition-colors hover:border-ink hover:bg-gemini-tint"
+            >
+              <Tag className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>
+                {dict.footer.changelogLink} · {CURRENT_TAG}
+              </span>
+            </Link>
+          </li>
+
+          {developerLinks.map((link) => (
+            <li key={link.id}>
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-6 items-center gap-1.5 rounded-md border border-ink/25 bg-surface px-2.5 py-1 font-mono text-xs font-medium text-ink transition-colors hover:border-ink hover:bg-gemini-tint"
+              >
+                {renderLinkIcon(link.id)}
+                <span>{link.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </footer>
   );

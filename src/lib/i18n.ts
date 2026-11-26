@@ -10,6 +10,7 @@ export interface Dictionary {
     neverChecked: string;
     viewProfile: string;
     languageSwitchLabel: string;
+    versionBadgeContext: string;
   };
   hero: {
     resetRecentlyBadge: string;
@@ -57,6 +58,21 @@ export interface Dictionary {
     disclaimer: string;
     builtByPrefix: string;
     languageLabel: string;
+    changelogLink: string;
+  };
+  changelog: {
+    pageTitle: string;
+    subtitle: string;
+    backToTracker: string;
+    currentVersionPrefix: string;
+    allGitHubReleases: string;
+    latestBadge: string;
+    releaseOnGitHubPrefix: string;
+    categories: {
+      added: string;
+      improved: string;
+      fixed: string;
+    };
   };
 }
 
@@ -71,6 +87,7 @@ const EN_DICTIONARY: Dictionary = {
     neverChecked: "Not checked yet",
     viewProfile: "@_mohansolo on X",
     languageSwitchLabel: "Language",
+    versionBadgeContext: "View changelog",
   },
   hero: {
     resetRecentlyBadge: "RESET RECENTLY",
@@ -120,6 +137,21 @@ const EN_DICTIONARY: Dictionary = {
       "Data from @_mohansolo's tweets, classified by Gemini. Not affiliated with Google.",
     builtByPrefix: "Built by",
     languageLabel: "Language",
+    changelogLink: "Changelog",
+  },
+  changelog: {
+    pageTitle: "Changelog",
+    subtitle: "Version history and notable updates to Gemini Resets.",
+    backToTracker: "Back to tracker",
+    currentVersionPrefix: "Current version:",
+    allGitHubReleases: "GitHub Releases",
+    latestBadge: "LATEST",
+    releaseOnGitHubPrefix: "GitHub Release",
+    categories: {
+      added: "Added",
+      improved: "Improved",
+      fixed: "Fixed",
+    },
   },
 };
 
@@ -134,6 +166,7 @@ const ID_DICTIONARY: Dictionary = {
     neverChecked: "Belum pernah dicek",
     viewProfile: "@_mohansolo di X",
     languageSwitchLabel: "Bahasa",
+    versionBadgeContext: "Lihat catatan rilis",
   },
   hero: {
     resetRecentlyBadge: "BARU DI-RESET",
@@ -183,6 +216,21 @@ const ID_DICTIONARY: Dictionary = {
       "Data dari tweet @_mohansolo, diklasifikasi oleh Gemini. Tidak berafiliasi dengan Google.",
     builtByPrefix: "Dibuat oleh",
     languageLabel: "Bahasa",
+    changelogLink: "Catatan rilis",
+  },
+  changelog: {
+    pageTitle: "Catatan Rilis",
+    subtitle: "Riwayat versi dan pembaruan penting pada Gemini Resets.",
+    backToTracker: "Kembali ke beranda",
+    currentVersionPrefix: "Versi saat ini:",
+    allGitHubReleases: "GitHub Releases",
+    latestBadge: "TERBARU",
+    releaseOnGitHubPrefix: "Rilis GitHub",
+    categories: {
+      added: "Baru",
+      improved: "Peningkatan",
+      fixed: "Perbaikan",
+    },
   },
 };
 

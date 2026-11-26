@@ -1,9 +1,21 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import {
+  emptySubscribe,
+  getClientBrowserZoneSnapshot,
+  getClientLocaleSnapshot,
+  getClientTimezoneModeSnapshot,
+  getServerBrowserZoneSnapshot,
+  getServerLocaleSnapshot,
+  getServerTimezoneModeSnapshot,
+  setClientLocalePreference,
+  setClientTimezoneModePreference,
+  subscribePrefs,
+} from "@/lib/client-prefs";
 import { MS_PER_MINUTE, resolveTimeZone } from "@/lib/datetime";
 import { buildDynamicHeatmap } from "@/lib/heatmap";
-import { getDictionary, parseLocale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
 import { computeHeroState, includeCurrentWait } from "@/lib/metrics";
 import type {
   Locale,
@@ -17,76 +29,8 @@ import { ResetHeatmap } from "./ResetHeatmap";
 import { TrackerFooter } from "./TrackerFooter";
 import { TrackerHeader } from "./TrackerHeader";
 
-const LOCALE_STORAGE_KEY = "gemini-resets-lang";
-const TIMEZONE_STORAGE_KEY = "gemini-resets-tz";
-const PREFS_EVENT = "gemini-resets-prefs";
-const temporaryPreferences = new Map<string, string>();
-
 interface TrackerPageClientProps {
   initialData: PublicTrackerHomeData;
-}
-
-const emptySubscribe = () => () => {};
-
-function readPreference(key: string): string | null {
-  try {
-    return temporaryPreferences.get(key) ?? window.localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-
-function savePreference(key: string, value: string): void {
-  try {
-    window.localStorage.setItem(key, value);
-    temporaryPreferences.delete(key);
-  } catch {
-    temporaryPreferences.set(key, value);
-  }
-}
-
-function subscribePrefs(callback: () => void) {
-  window.addEventListener(PREFS_EVENT, callback);
-  window.addEventListener("storage", callback);
-  window.addEventListener("popstate", callback);
-  return () => {
-    window.removeEventListener(PREFS_EVENT, callback);
-    window.removeEventListener("storage", callback);
-    window.removeEventListener("popstate", callback);
-  };
-}
-
-function getClientLocaleSnapshot(): Locale {
-  const params = new URLSearchParams(window.location.search);
-  const queryLang = params.get("lang");
-  if (queryLang) {
-    return parseLocale(queryLang);
-  }
-  return parseLocale(readPreference(LOCALE_STORAGE_KEY));
-}
-
-function getServerLocaleSnapshot(): Locale {
-  return "en";
-}
-
-function getClientTimezoneModeSnapshot(): TimezoneMode {
-  const saved = readPreference(TIMEZONE_STORAGE_KEY);
-  if (saved === "varun" || saved === "local") {
-    return saved;
-  }
-  return "local";
-}
-
-function getServerTimezoneModeSnapshot(): TimezoneMode {
-  return "varun";
-}
-
-function getClientBrowserZoneSnapshot(): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-}
-
-function getServerBrowserZoneSnapshot(): string {
-  return "UTC";
 }
 
 export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
@@ -130,21 +74,11 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
   }, []);
 
   const handleLocaleChange = (nextLocale: Locale) => {
-    savePreference(LOCALE_STORAGE_KEY, nextLocale);
-
-    const url = new URL(window.location.href);
-    if (nextLocale === "en") {
-      url.searchParams.delete("lang");
-    } else {
-      url.searchParams.set("lang", nextLocale);
-    }
-    window.history.replaceState(null, "", url.toString());
-    window.dispatchEvent(new Event(PREFS_EVENT));
+    setClientLocalePreference(nextLocale);
   };
 
   const handleTimezoneModeChange = (nextMode: TimezoneMode) => {
-    savePreference(TIMEZONE_STORAGE_KEY, nextMode);
-    window.dispatchEvent(new Event(PREFS_EVENT));
+    setClientTimezoneModePreference(nextMode);
   };
 
   const dict = getDictionary(locale);

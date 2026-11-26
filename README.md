@@ -24,4 +24,4 @@ Beranda menunjukkan kapan pengecekan terakhir berlangsung. Saat pengecekan tertu
 
 ## Open source
 
-Gemini Resets adalah proyek independen oleh [Fajri Farid](https://fajrifarid.com) dan dirilis dengan [lisensi MIT](./LICENSE). Jika ada pengumuman yang terlewat atau salah tercatat, buka issue dan sertakan tautan ke unggahan aslinya.
+Gemini Resets adalah proyek independen oleh [Fajri Farid](https://fajrifarid.com) dan dirilis dengan [lisensi MIT](./LICENSE). Catatan perubahan tiap versi tersedia di [CHANGELOG.md](./CHANGELOG.md) serta halaman [GitHub Releases](https://github.com/fajri-farid/gemini-ag-reset/releases). Jika ada pengumuman yang terlewat atau salah tercatat, buka issue dan sertakan tautan ke unggahan aslinya.
