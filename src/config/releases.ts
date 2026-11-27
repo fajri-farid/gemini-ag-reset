@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/site";
 
-export const CURRENT_VERSION = "0.2.0";
+export const CURRENT_VERSION = "0.3.0";
 export const CURRENT_TAG = `v${CURRENT_VERSION}`;
 
 export type ReleaseChangeCategory = "added" | "improved" | "fixed";
@@ -32,10 +32,45 @@ export function getGitHubReleaseUrl(tag: string): string {
 
 export const RELEASES: readonly ReleaseEntry[] = [
   {
+    version: "0.3.0",
+    tag: "v0.3.0",
+    publishedOn: "2026-11-27",
+    isLatest: true,
+    content: {
+      en: {
+        title: "Share Reset Updates",
+        summary:
+          "Let friends know when Gemini quota resets in Antigravity.",
+        sections: {
+          added: [
+            "Share from the reset status on the home page or from any announcement in the archive.",
+            "Preview and download an image for a post or story. Choose the language and time zone before you share.",
+            "Share an individual announcement or a summary of the reset history. You can share the image directly from supported browsers.",
+            "Copy the suggested message, open it in WhatsApp, or start a draft on X or Threads.",
+            "The Gemini Resets link can show the latest reset status in apps that support link previews.",
+          ],
+        },
+      },
+      id: {
+        title: "Bagikan Kabar Reset",
+        summary:
+          "Kabari teman saat kuota Gemini di Antigravity direset.",
+        sections: {
+          added: [
+            "Bagikan dari status reset di beranda atau dari pengumuman mana pun di arsip.",
+            "Lihat pratinjau dan unduh gambar untuk unggahan atau story. Pilih bahasa dan zona waktu sebelum membagikannya.",
+            "Bagikan satu pengumuman atau ringkasan riwayat reset. Di browser yang mendukung, gambar bisa langsung dibagikan.",
+            "Salin pesan yang sudah disiapkan, buka di WhatsApp, atau buat draf di X maupun Threads.",
+            "Tautan Gemini Resets bisa menampilkan status reset terbaru di aplikasi yang mendukung pratinjau tautan.",
+          ],
+        },
+      },
+    },
+  },
+  {
     version: "0.2.0",
     tag: "v0.2.0",
     publishedOn: "2026-11-27",
-    isLatest: true,
     content: {
       en: {
         title: "Community Notes & Site Love",

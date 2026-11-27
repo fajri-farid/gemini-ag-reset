@@ -5,6 +5,18 @@ All notable changes to **Gemini Resets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-11-27
+
+Let friends know when Gemini quota resets in Antigravity.
+
+### Added
+
+- **Share from the reset status** on the home page or from any announcement in the archive.
+- **Preview and download an image** for a post or story. Choose the language and time zone before you share.
+- Share **an individual announcement or a summary of the reset history**. You can share the image directly from supported browsers.
+- **Copy the suggested message**, open it in WhatsApp, or start a draft on X or Threads.
+- The Gemini Resets link can show **the latest reset status** in apps that support link previews.
+
 ## [0.2.0] - 2026-11-27
 
 Share a note with the Gemini Resets community or tap the heart to show your support.
@@ -30,5 +42,6 @@ First public release of **Gemini Resets** for tracking `@_mohansolo` Gemini quot
 - Automated hourly checks for new reset announcements with a live "Last checked" status indicator.
 - Version badge and dedicated `/changelog` page to follow future product updates.
 
+[0.3.0]: https://github.com/fajri-farid/gemini-ag-reset/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fajri-farid/gemini-ag-reset/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fajri-farid/gemini-ag-reset/releases/tag/v0.1.0
