@@ -2,13 +2,32 @@ import "server-only";
 import { cacheLife, cacheTag, revalidatePath, revalidateTag } from "next/cache";
 import { MS_PER_DAY } from "@/lib/datetime";
 import { HEATMAP_MAX_WEEKS } from "@/lib/heatmap";
-import { computeHeroState, computeMetrics, computeHistoricalMetrics } from "@/lib/metrics";
+import {
+  computeHeroState,
+  computeHistoricalMetrics,
+  computeMetrics,
+} from "@/lib/metrics";
 import { paginateResetFeed } from "@/lib/reset-feed";
-import type { PublicTrackerHomeData, PublicTrackerPayload, ResetFeedCursor } from "@/lib/types";
+import {
+  HOME_VISIBLE_NOTES,
+  NOTES_PAGE_SIZE,
+  noteCursorParams,
+  type PublicNotesPage,
+  type SiteStats,
+} from "@/lib/sticky-notes";
+import type {
+  PublicTrackerHomeData,
+  PublicTrackerPayload,
+  ResetFeedCursor,
+} from "@/lib/types";
+import { getNotesRepository, type ListPublishedNotesOptions } from "./notes-repository";
+import { signCommunityCursor } from "./community-request";
 import { getResetRepository } from "./reset-repository";
 
 const RESETS_CACHE_TAG = "resets";
 const STATUS_CACHE_TAG = "tracker-sync-status";
+const NOTES_CACHE_TAG = "notes";
+const SITE_STATS_CACHE_TAG = "site-stats";
 const PUBLIC_CACHE_LIFE = { revalidate: 300, stale: 60, expire: 3600 };
 
 export function revalidatePublicResets(): void {
@@ -24,6 +43,11 @@ export function revalidatePublicTrackerStatus(resetsChanged = false): void {
   }
 }
 
+export function revalidatePublicNotes(): void {
+  revalidateTag(NOTES_CACHE_TAG, { expire: 0 });
+  revalidateTag(SITE_STATS_CACHE_TAG, { expire: 0 });
+}
+
 async function getCachedResetArchive() {
   "use cache: remote";
   cacheLife({ revalidate: 3600, stale: 60, expire: 86400 });
@@ -31,19 +55,57 @@ async function getCachedResetArchive() {
   return getResetRepository().listResets();
 }
 
-async function getCachedPublicSyncStatus(): Promise<PublicTrackerPayload["syncStatus"]> {
+async function getCachedPublicSyncStatus(): Promise<
+  PublicTrackerPayload["syncStatus"]
+> {
   "use cache";
   cacheLife(PUBLIC_CACHE_LIFE);
   cacheTag(STATUS_CACHE_TAG);
-  const { lastCheckedAt, lastStatus, trackingStartedAt } = await getResetRepository().getSyncStatus();
+  const { lastCheckedAt, lastStatus, trackingStartedAt } =
+    await getResetRepository().getSyncStatus();
   return { lastCheckedAt, lastStatus, trackingStartedAt };
+}
+
+async function getCachedSiteStats(): Promise<SiteStats> {
+  "use cache";
+  cacheLife(PUBLIC_CACHE_LIFE);
+  cacheTag(SITE_STATS_CACHE_TAG);
+  return getNotesRepository().getSiteStats();
+}
+
+export async function getCachedNotesPage(options: ListPublishedNotesOptions): Promise<PublicNotesPage> {
+  "use cache";
+  cacheLife(PUBLIC_CACHE_LIFE);
+  cacheTag(NOTES_CACHE_TAG);
+  const stats = await getCachedSiteStats();
+  const page = await getNotesRepository().listPublishedNotes(options, stats.publishedNotesCount);
+  const signature = page.nextCursor && signCommunityCursor(noteCursorParams(page.nextCursor).toString());
+  return signature && page.nextCursor
+    ? { ...page, nextCursor: { ...page.nextCursor, signature } }
+    : { ...page, nextCursor: null };
+}
+
+export async function getCachedInitialNotesPage(): Promise<{
+  page: PublicNotesPage;
+  generatedAt: string;
+}> {
+  "use cache";
+  cacheLife(PUBLIC_CACHE_LIFE);
+  cacheTag(NOTES_CACHE_TAG);
+  return {
+    page: await getCachedNotesPage({ limit: NOTES_PAGE_SIZE, cursor: null, mood: null, lovedOnly: false }),
+    generatedAt: new Date().toISOString(),
+  };
 }
 
 export async function getCachedPublicTrackerData(): Promise<PublicTrackerPayload> {
   "use cache";
   cacheLife(PUBLIC_CACHE_LIFE);
 
-  const [resets, syncStatus] = await Promise.all([getCachedResetArchive(), getCachedPublicSyncStatus()]);
+  const [resets, syncStatus] = await Promise.all([
+    getCachedResetArchive(),
+    getCachedPublicSyncStatus(),
+  ]);
   const now = new Date();
   return {
     resets,
@@ -58,26 +120,38 @@ export async function getCachedPublicTrackerHomeData(): Promise<PublicTrackerHom
   "use cache";
   cacheLife(PUBLIC_CACHE_LIFE);
 
-  const [resets, syncStatus] = await Promise.all([getCachedResetArchive(), getCachedPublicSyncStatus()]);
+  cacheTag(NOTES_CACHE_TAG);
+  cacheTag(SITE_STATS_CACHE_TAG);
+  const [resets, syncStatus, notesPreview, siteStats] = await Promise.all([
+    getCachedResetArchive(),
+    getCachedPublicSyncStatus(),
+    getCachedNotesPage({ limit: HOME_VISIBLE_NOTES }),
+    getCachedSiteStats(),
+  ]);
   const now = new Date();
   // Include UTC days on either side of the local heatmap window.
   const cutoff = now.getTime() - (HEATMAP_MAX_WEEKS * 7 + 2) * MS_PER_DAY;
   const earliest = resets.at(-1)?.resetAt;
-  const trackingStartedAt = earliest && Date.parse(earliest) < Date.parse(syncStatus.trackingStartedAt)
-    ? earliest
-    : syncStatus.trackingStartedAt;
+  const trackingStartedAt =
+    earliest && Date.parse(earliest) < Date.parse(syncStatus.trackingStartedAt)
+      ? earliest
+      : syncStatus.trackingStartedAt;
 
   return {
     feed: paginateResetFeed(resets, 5),
-    heatmapResets: resets.filter(({ resetAt }) => Date.parse(resetAt) >= cutoff)
+    heatmapResets: resets
+      .filter(({ resetAt }) => Date.parse(resetAt) >= cutoff)
       .map(({ tweetId, tweetUrl, tweetText, resetAt }) => ({
         tweetId,
         tweetUrl,
-        tweetText: tweetText.length > 180 ? `${tweetText.slice(0, 179)}…` : tweetText,
+        tweetText:
+          tweetText.length > 180 ? `${tweetText.slice(0, 179)}…` : tweetText,
         resetAt,
       })),
     historicalMetrics: computeHistoricalMetrics(resets),
     syncStatus: { ...syncStatus, trackingStartedAt },
+    notesPreview,
+    siteLoveCount: siteStats.loveCount,
     generatedAt: now.toISOString(),
   };
 }

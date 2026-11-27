@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { AtSign, Briefcase, Code2, Globe, Tag } from "lucide-react";
+import {
+  AtSign,
+  Briefcase,
+  Code2,
+  Globe,
+  StickyNote as StickyNoteIcon,
+  Tag,
+} from "lucide-react";
 import { CURRENT_TAG } from "@/config/releases";
 import {
   getDeveloperLinks,
@@ -13,7 +20,7 @@ interface TrackerFooterProps {
   dict: Dictionary;
   locale: Locale;
   onLocaleChange: (locale: Locale) => void;
-  currentPath?: "/" | "/changelog";
+  currentPath?: "/" | "/changelog" | "/notes";
 }
 
 function renderLinkIcon(id: DeveloperLinkId) {
@@ -82,6 +89,17 @@ export function TrackerFooter({
         </span>
 
         <ul role="list" className="flex flex-wrap items-center gap-2">
+          <li>
+            <Link
+              href="/notes"
+              aria-current={currentPath === "/notes" ? "page" : undefined}
+              className="inline-flex min-h-6 items-center gap-1.5 rounded-md border border-ink/25 bg-surface px-2.5 py-1 font-mono text-xs font-semibold text-ink transition-colors hover:border-ink hover:bg-gemini-tint"
+            >
+              <StickyNoteIcon className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{dict.footer.notesLink}</span>
+            </Link>
+          </li>
+
           <li>
             <Link
               href="/changelog"

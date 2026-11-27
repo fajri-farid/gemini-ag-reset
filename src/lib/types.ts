@@ -1,3 +1,5 @@
+import type { PublicNotesPage } from "./sticky-notes";
+
 export type Locale = "en" | "id";
 
 export type TimezoneMode = "varun" | "local";
@@ -115,5 +117,7 @@ export interface PublicTrackerHomeData {
   heatmapResets: ResetEvidence[];
   historicalMetrics: TrackerMetrics;
   syncStatus: PublicTrackerPayload["syncStatus"];
+  notesPreview: PublicNotesPage;
+  siteLoveCount: number;
   generatedAt: string;
 }

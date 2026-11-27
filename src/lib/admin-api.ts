@@ -1,8 +1,21 @@
+import { noteCursorParams, type NotesCursor, type SiteStats, type StickyNote, type StickyNoteStatus } from "./sticky-notes";
 import type { ResetRecord, SyncLog, SyncStatus } from "./types";
 
 export interface AdminDashboardResponse {
   resets: ResetRecord[];
   syncStatus: SyncStatus;
+}
+
+export interface AdminNotesResponse {
+  notes: StickyNote[];
+  stats: SiteStats | null;
+  nextCursor: NotesCursor | null;
+}
+
+export interface UpdateAdminNoteInput {
+  isPinned?: boolean;
+  lovedByMaker?: boolean;
+  status?: StickyNoteStatus;
 }
 
 export interface AdminLogsResponse {
@@ -220,4 +233,55 @@ export async function triggerAdminSync(
     method: "POST",
     body: JSON.stringify({ dryRun }),
   });
+}
+
+export async function fetchAdminNotes(
+  idToken: string,
+  cursor?: NotesCursor | null,
+): Promise<AdminNotesResponse> {
+  const path = "/api/admin/notes" + (cursor ? "?" + noteCursorParams(cursor) : "");
+  return requestAdminJson<AdminNotesResponse>(path, idToken, {
+    method: "GET",
+  });
+}
+
+export async function updateAdminNote(
+  idToken: string,
+  noteId: string,
+  input: UpdateAdminNoteInput,
+): Promise<{ note: StickyNote }> {
+  return requestAdminJson<{ note: StickyNote }>(
+    `/api/admin/notes/${encodeURIComponent(noteId)}`,
+    idToken,
+    {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export async function reorderAdminPinnedNotes(
+  idToken: string,
+  orderedIds: readonly string[],
+  expectedOrder: readonly string[],
+): Promise<{ ok: boolean; notes: StickyNote[] }> {
+  return requestAdminJson<{ ok: boolean; notes: StickyNote[] }>(
+    "/api/admin/notes/reorder",
+    idToken,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ orderedIds, expectedOrder }),
+    },
+  );
+}
+
+export async function deleteAdminNote(
+  idToken: string,
+  noteId: string,
+): Promise<{ ok: boolean; noteId: string }> {
+  return requestAdminJson<{ ok: boolean; noteId: string }>(
+    `/api/admin/notes/${encodeURIComponent(noteId)}`,
+    idToken,
+    { method: "DELETE" },
+  );
 }

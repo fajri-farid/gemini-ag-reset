@@ -22,10 +22,12 @@ import type {
   PublicTrackerHomeData,
   TimezoneMode,
 } from "@/lib/types";
+import { FloatingNotesDock } from "./FloatingNotesDock";
 import { HeroStatusCard } from "./HeroStatusCard";
 import { KeyMetricsStrip } from "./KeyMetricsStrip";
 import { ResetAnnouncementsFeed } from "./ResetAnnouncementsFeed";
 import { ResetHeatmap } from "./ResetHeatmap";
+import { StickyNotesWall } from "./StickyNotesWall";
 import { TrackerFooter } from "./TrackerFooter";
 import { TrackerHeader } from "./TrackerHeader";
 
@@ -35,6 +37,10 @@ interface TrackerPageClientProps {
 
 export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
   const [currentTime, setCurrentTime] = useState<number | null>(null);
+  const [isWriteNoteOpen, setIsWriteNoteOpen] = useState(false);
+  const [notesTotalCount, setNotesTotalCount] = useState(
+    initialData.notesPreview.totalCount,
+  );
 
   const locale = useSyncExternalStore(
     subscribePrefs,
@@ -81,6 +87,21 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
     setClientTimezoneModePreference(nextMode);
   };
 
+  const handleJumpToNotes = () => {
+    const section = document.getElementById("community-notes");
+    if (!section) {
+      return;
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    section.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  };
+
   const dict = getDictionary(locale);
   const activeTimeZone = resolveTimeZone(timezoneMode, browserTimeZone);
   const referenceNow = new Date(currentTime ?? initialData.generatedAt);
@@ -112,6 +133,7 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
         onLocaleChange={handleLocaleChange}
         lastCheckedAt={initialData.syncStatus.lastCheckedAt}
         lastStatus={initialData.syncStatus.lastStatus}
+        initialSiteLoveCount={initialData.siteLoveCount}
         now={referenceNow}
       />
 
@@ -126,7 +148,11 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
         />
 
         <KeyMetricsStrip
-          metrics={includeCurrentWait(initialData.historicalMetrics, latestReset?.resetAt, referenceNow)}
+          metrics={includeCurrentWait(
+            initialData.historicalMetrics,
+            latestReset?.resetAt,
+            referenceNow,
+          )}
           dict={dict}
           locale={locale}
         />
@@ -146,7 +172,25 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
           locale={locale}
           timeZone={activeTimeZone}
         />
+
+        <StickyNotesWall
+          initialNotesPage={initialData.notesPreview}
+          dict={dict}
+          locale={locale}
+          now={referenceNow}
+          isDialogOpen={isWriteNoteOpen}
+          onOpenDialog={() => setIsWriteNoteOpen(true)}
+          onCloseDialog={() => setIsWriteNoteOpen(false)}
+          onTotalCountChange={setNotesTotalCount}
+        />
       </main>
+
+      <FloatingNotesDock
+        noteCount={notesTotalCount}
+        dict={dict}
+        onJumpToNotes={handleJumpToNotes}
+        onOpenWriteDialog={() => setIsWriteNoteOpen(true)}
+      />
 
       <TrackerFooter
         dict={dict}

@@ -13,20 +13,26 @@ import {
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";
+import { AdminNotesManager } from "@/components/admin/AdminNotesManager";
 import { AdminResetsManager } from "@/components/admin/AdminResetsManager";
 import { AdminSyncLogsTable } from "@/components/admin/AdminSyncLogsTable";
 import { AdminSyncPanel } from "@/components/admin/AdminSyncPanel";
 import {
   AdminApiError,
   createManualReset,
+  deleteAdminNote,
   deleteManualReset,
   fetchAdminDashboard,
   fetchAdminLogs,
+  fetchAdminNotes,
+  reorderAdminPinnedNotes,
   triggerAdminSync,
+  updateAdminNote,
   updateManualReset,
   updateTrackingStartedAt,
   type AdminSyncResponse,
   type CreateManualResetInput,
+  type UpdateAdminNoteInput,
   type UpdateManualResetInput,
 } from "@/lib/admin-api";
 import {
@@ -34,6 +40,7 @@ import {
   getFirebaseClientAuth,
   getMissingFirebaseClientEnvVars,
 } from "@/lib/firebase-client";
+import { sortStickyNotes, type NotesCursor, type SiteStats, type StickyNote } from "@/lib/sticky-notes";
 import type { ResetRecord, SyncLog, SyncStatus } from "@/lib/types";
 
 interface FeedbackBanner {
@@ -58,6 +65,11 @@ export function AdminAuthGate() {
   const [resets, setResets] = useState<ResetRecord[]>([]);
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [logs, setLogs] = useState<SyncLog[]>([]);
+  const [notes, setNotes] = useState<StickyNote[]>([]);
+  const [notesCursor, setNotesCursor] = useState<NotesCursor | null>(null);
+  const [isLoadingNotes, setIsLoadingNotes] = useState(false);
+  const [notesError, setNotesError] = useState<string | null>(null);
+  const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncingMode, setSyncingMode] = useState<"live" | "dry_run" | null>(
@@ -116,6 +128,10 @@ export function AdminAuthGate() {
         setResets([]);
         setSyncStatus(null);
         setLogs([]);
+        setNotes([]);
+        setNotesCursor(null);
+        setNotesError(null);
+        setSiteStats(null);
         setLastSyncResult(null);
       }
     });
@@ -221,6 +237,104 @@ export function AdminAuthGate() {
       tone: "success",
       message: "Heatmap tracking start date updated.",
     });
+  };
+
+  const loadNotes = async (cursor?: NotesCursor) => {
+    if (isLoadingNotes) return;
+    setIsLoadingNotes(true);
+    setNotesError(null);
+    try {
+      const token = await withIdToken();
+      const result = await fetchAdminNotes(token, cursor);
+      setNotes((current) => cursor
+        ? sortStickyNotes(Array.from(new Map([...current, ...result.notes].map((note) => [note.id, note])).values()))
+        : result.notes);
+      setNotesCursor(result.nextCursor);
+      if (result.stats) setSiteStats(result.stats);
+    } catch (error) {
+      setNotesError(error instanceof Error ? error.message : "Unable to load community notes.");
+    } finally {
+      setIsLoadingNotes(false);
+    }
+  };
+
+  const updateNotesCount = (delta: number) => {
+    if (!delta) return;
+    setSiteStats((stats) => stats ? {
+      ...stats,
+      publishedNotesCount: Math.max(0, stats.publishedNotesCount + delta),
+    } : stats);
+  };
+
+  const handleUpdateNote = async (
+    noteId: string,
+    input: UpdateAdminNoteInput,
+  ) => {
+    try {
+      const token = await withIdToken();
+      const previous = notes.find((note) => note.id === noteId);
+      const { note } = await updateAdminNote(token, noteId, input);
+      setNotes((current) => sortStickyNotes(current.map((item) => item.id === note.id ? note : item)));
+      if (previous) updateNotesCount(Number(note.status === "published") - Number(previous.status === "published"));
+      if (notesCursor && previous?.isPinned !== note.isPinned) await loadNotes();
+      setFeedback({
+        tone: "success",
+        message: "Updated community note and refreshed public cache.",
+      });
+    } catch (err) {
+      setFeedback({
+        tone: "error",
+        message:
+          err instanceof Error
+            ? err.message
+            : "Failed to update community note.",
+      });
+    }
+  };
+
+  const handleReorderPinnedNotes = async (
+    orderedIds: readonly string[], expectedOrder: readonly string[],
+  ) => {
+    try {
+      const token = await withIdToken();
+      const result = await reorderAdminPinnedNotes(token, orderedIds, expectedOrder);
+      const reordered = new Map(result.notes.map((note) => [note.id, note]));
+      setNotes((current) => sortStickyNotes(current.map((note) => reordered.get(note.id) ?? note)));
+      if (notesCursor?.isPinned) await loadNotes();
+      setFeedback({
+        tone: "success",
+        message: "Pinned notes order saved and public wall revalidated.",
+      });
+    } catch (err) {
+      setFeedback({
+        tone: "error",
+        message:
+          err instanceof Error
+            ? err.message
+            : "Failed to save pinned notes order.",
+      });
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    try {
+      const token = await withIdToken();
+      await deleteAdminNote(token, noteId);
+      if (notes.find((note) => note.id === noteId)?.status === "published") updateNotesCount(-1);
+      setNotes((current) => current.filter((note) => note.id !== noteId));
+      setFeedback({
+        tone: "success",
+        message: "Deleted community note and refreshed public cache.",
+      });
+    } catch (err) {
+      setFeedback({
+        tone: "error",
+        message:
+          err instanceof Error
+            ? err.message
+            : "Failed to delete community note.",
+      });
+    }
   };
 
   const handleTriggerSync = async (
@@ -455,7 +569,7 @@ export function AdminAuthGate() {
               </span>
             </span>
             <span className="font-mono text-ink-muted">
-              {resets.length} resets · {logs.length} logs loaded
+              {resets.length} resets · {notes.length} notes · {logs.length} logs
             </span>
           </div>
 
@@ -493,6 +607,48 @@ export function AdminAuthGate() {
             onUpdateReset={handleUpdateReset}
             onDeleteReset={handleDeleteReset}
           />
+
+          <details
+            className="neo-card p-4 sm:p-6"
+            onToggle={(event) => {
+              if (event.currentTarget.open && !siteStats && !notesError) void loadNotes();
+            }}
+          >
+            <summary className="cursor-pointer font-bold">Community notes</summary>
+            {siteStats && (
+              <div className="mt-4">
+                <AdminNotesManager
+                  notes={notes}
+                  stats={siteStats}
+                  onUpdateNote={handleUpdateNote}
+                  onReorderPinned={handleReorderPinnedNotes}
+                  onDeleteNote={handleDeleteNote}
+                />
+              </div>
+            )}
+            {isLoadingNotes && <p role="status" className="mt-3 text-sm">Loading notes...</p>}
+            {notesError && <p role="alert" className="mt-3 text-sm text-danger">{notesError}</p>}
+            {(notesCursor || notesError) && (
+              <button
+                type="button"
+                disabled={isLoadingNotes}
+                className="neo-interactive mt-3 px-3 py-2 text-sm font-semibold"
+                onClick={() => void loadNotes(notesCursor ?? undefined)}
+              >
+                {notesError ? "Try again" : "Load more notes"}
+              </button>
+            )}
+            {siteStats && (
+              <button
+                type="button"
+                disabled={isLoadingNotes}
+                className="neo-interactive mt-3 ml-2 px-3 py-2 text-sm font-semibold"
+                onClick={() => void loadNotes()}
+              >
+                Refresh notes
+              </button>
+            )}
+          </details>
 
           <AdminSyncLogsTable logs={logs} />
         </>
