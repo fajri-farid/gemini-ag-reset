@@ -10,6 +10,9 @@ const NOTES_DESCRIPTION =
 export const metadata: Metadata = {
   title: `Community Notes — ${siteConfig.name}`,
   description: NOTES_DESCRIPTION,
+  alternates: {
+    canonical: "/notes",
+  },
   openGraph: {
     title: `Community Notes — ${siteConfig.name}`,
     description: NOTES_DESCRIPTION,

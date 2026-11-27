@@ -1,6 +1,14 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { TrackerPageClient } from "@/components/tracker/TrackerPageClient";
+import { buildHomeJsonLd, serializeJsonLd } from "@/lib/seo";
 import { getCachedPublicTrackerHomeData } from "@/lib/server/public-data";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 async function HomePageContent() {
   const initialData = await getCachedPublicTrackerHomeData();
@@ -25,9 +33,17 @@ function HomePageFallback() {
 }
 
 export default function HomePage() {
+  const jsonLd = serializeJsonLd(buildHomeJsonLd());
+
   return (
-    <Suspense fallback={<HomePageFallback />}>
-      <HomePageContent />
-    </Suspense>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
+      <Suspense fallback={<HomePageFallback />}>
+        <HomePageContent />
+      </Suspense>
+    </>
   );
 }

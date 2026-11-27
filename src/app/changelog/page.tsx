@@ -8,6 +8,9 @@ const CHANGELOG_DESCRIPTION =
 export const metadata: Metadata = {
   title: `Changelog — ${siteConfig.name}`,
   description: CHANGELOG_DESCRIPTION,
+  alternates: {
+    canonical: "/changelog",
+  },
   openGraph: {
     title: `Changelog — ${siteConfig.name}`,
     description: CHANGELOG_DESCRIPTION,
