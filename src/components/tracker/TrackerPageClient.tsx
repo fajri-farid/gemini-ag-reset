@@ -20,6 +20,7 @@ import { computeHeroState, includeCurrentWait } from "@/lib/metrics";
 import type {
   Locale,
   PublicTrackerHomeData,
+  ResetFeedItem,
   TimezoneMode,
 } from "@/lib/types";
 import { FloatingNotesDock } from "./FloatingNotesDock";
@@ -27,6 +28,7 @@ import { HeroStatusCard } from "./HeroStatusCard";
 import { KeyMetricsStrip } from "./KeyMetricsStrip";
 import { ResetAnnouncementsFeed } from "./ResetAnnouncementsFeed";
 import { ResetHeatmap } from "./ResetHeatmap";
+import { ShareResetDialog, type ShareTarget } from "./ShareResetDialog";
 import { StickyNotesWall } from "./StickyNotesWall";
 import { TrackerFooter } from "./TrackerFooter";
 import { TrackerHeader } from "./TrackerHeader";
@@ -38,6 +40,8 @@ interface TrackerPageClientProps {
 export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
   const [currentTime, setCurrentTime] = useState<number | null>(null);
   const [isWriteNoteOpen, setIsWriteNoteOpen] = useState(false);
+  const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null);
+  const [shareSessionCount, setShareSessionCount] = useState(0);
   const [notesTotalCount, setNotesTotalCount] = useState(
     initialData.notesPreview.totalCount,
   );
@@ -115,6 +119,23 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
   });
 
   const latestReset = initialData.feed.items[0] ?? null;
+  const heroState = computeHeroState(latestReset?.resetAt, referenceNow);
+  const currentMetrics = includeCurrentWait(
+    initialData.historicalMetrics,
+    latestReset?.resetAt,
+    referenceNow,
+  );
+
+  const openShareModal = (mode: "hero" | "item", reset: ResetFeedItem) => {
+    const nextSession = shareSessionCount + 1;
+    setShareSessionCount(nextSession);
+    setShareTarget({
+      mode,
+      reset,
+      gapMinutesFromPrevious: reset.gapMinutesFromPrevious,
+      sessionKey: nextSession,
+    });
+  };
 
   return (
     <div
@@ -139,20 +160,19 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
 
       <main id="main-content" tabIndex={-1} className="flex flex-col gap-6">
         <HeroStatusCard
-          heroState={computeHeroState(latestReset?.resetAt, referenceNow)}
+          heroState={heroState}
           latestReset={latestReset}
           dict={dict}
           locale={locale}
           timeZone={activeTimeZone}
           now={referenceNow}
+          onShare={
+            latestReset ? () => openShareModal("hero", latestReset) : undefined
+          }
         />
 
         <KeyMetricsStrip
-          metrics={includeCurrentWait(
-            initialData.historicalMetrics,
-            latestReset?.resetAt,
-            referenceNow,
-          )}
+          metrics={currentMetrics}
           dict={dict}
           locale={locale}
         />
@@ -171,6 +191,7 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
           dict={dict}
           locale={locale}
           timeZone={activeTimeZone}
+          onShareItem={(item) => openShareModal("item", item)}
         />
 
         <StickyNotesWall
@@ -184,6 +205,20 @@ export function TrackerPageClient({ initialData }: TrackerPageClientProps) {
           onTotalCountChange={setNotesTotalCount}
         />
       </main>
+
+      <ShareResetDialog
+        target={shareTarget}
+        heroState={heroState}
+        metrics={currentMetrics}
+        heatmapResets={initialData.heatmapResets}
+        trackingStartedAt={initialData.syncStatus.trackingStartedAt}
+        dict={dict}
+        locale={locale}
+        timezoneMode={timezoneMode}
+        browserTimeZone={browserTimeZone}
+        now={referenceNow}
+        onClose={() => setShareTarget(null)}
+      />
 
       <FloatingNotesDock
         noteCount={notesTotalCount}

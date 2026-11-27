@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { siteConfig } from "@/config/site";
+import { resolveSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,22 +15,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const DEFAULT_SITE_URL = "https://geminireset.fajrifarid.com";
-
-function resolveMetadataBase(): URL {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (raw) {
-    try {
-      return new URL(raw);
-    } catch {
-      // Fallback ke domain produksi default jika format env tidak valid.
-    }
-  }
-  return new URL(DEFAULT_SITE_URL);
-}
-
 export const metadata: Metadata = {
-  metadataBase: resolveMetadataBase(),
+  metadataBase: resolveSiteUrl(),
   title: siteConfig.tabTitle,
   description: siteConfig.shortDescription,
   openGraph: {
@@ -40,7 +27,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: siteConfig.tabTitle,
     description: siteConfig.shortDescription,
   },

@@ -1,14 +1,15 @@
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Share2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { formatGapBadge, formatTimestamp } from "@/lib/datetime";
 import type { Dictionary } from "@/lib/i18n";
-import type { Locale, ResetFeedPage } from "@/lib/types";
+import type { Locale, ResetFeedItem, ResetFeedPage } from "@/lib/types";
 
 interface ResetAnnouncementsFeedProps {
   initialPage: ResetFeedPage;
   dict: Dictionary;
   locale: Locale;
   timeZone: string;
+  onShareItem?: (item: ResetFeedItem) => void;
 }
 
 function focusAnnouncement(element: HTMLLIElement | null) {
@@ -20,6 +21,7 @@ export function ResetAnnouncementsFeed({
   dict,
   locale,
   timeZone,
+  onShareItem,
 }: ResetAnnouncementsFeedProps) {
   const [page, setPage] = useState(initialPage);
   const [isLoading, setIsLoading] = useState(false);
@@ -107,18 +109,34 @@ export function ResetAnnouncementsFeed({
                     )}
                   </div>
 
-                  <a
-                    href={item.tweetUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-mono text-xs font-bold text-gemini-blue hover:text-gemini-violet"
-                  >
-                    <span>
-                      {dict.feed.viewOnX}
-                      <span className="sr-only"> ({formattedDate})</span>
-                    </span>
-                    <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  </a>
+                  <div className="flex items-center gap-3">
+                    {onShareItem && (
+                      <button
+                        type="button"
+                        onClick={() => onShareItem(item)}
+                        className="inline-flex items-center gap-1 rounded-md border border-ink/25 bg-surface-muted px-2 py-0.5 font-mono text-xs font-bold text-ink hover:border-ink hover:bg-gemini-tint"
+                      >
+                        <Share2 className="h-3 w-3" aria-hidden="true" />
+                        <span>
+                          {dict.feed.shareItemLabel}
+                          <span className="sr-only"> ({formattedDate})</span>
+                        </span>
+                      </button>
+                    )}
+
+                    <a
+                      href={item.tweetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-mono text-xs font-bold text-gemini-blue hover:text-gemini-violet"
+                    >
+                      <span>
+                        {dict.feed.viewOnX}
+                        <span className="sr-only"> ({formattedDate})</span>
+                      </span>
+                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    </a>
+                  </div>
                 </div>
 
                 <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink sm:text-base">

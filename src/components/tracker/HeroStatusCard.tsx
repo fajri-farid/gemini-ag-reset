@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowUpRight, Clock, Zap } from "lucide-react";
+import { ArrowUpRight, Clock, Share2, Zap } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { formatRelativeTime, formatTimestamp } from "@/lib/datetime";
 import type { Dictionary } from "@/lib/i18n";
@@ -12,6 +12,7 @@ interface HeroStatusCardProps {
   locale: Locale;
   timeZone: string;
   now: Date;
+  onShare?: () => void;
 }
 
 export function HeroStatusCard({
@@ -21,6 +22,7 @@ export function HeroStatusCard({
   locale,
   timeZone,
   now,
+  onShare,
 }: HeroStatusCardProps) {
   if (heroState === "empty" || !latestReset) {
     return (
@@ -116,7 +118,7 @@ export function HeroStatusCard({
           {tweetSnippet}
         </p>
 
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <a
             href={latestReset.tweetUrl}
             target="_blank"
@@ -134,6 +136,17 @@ export function HeroStatusCard({
             </span>
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
           </a>
+
+          {onShare && (
+            <button
+              type="button"
+              onClick={onShare}
+              className="neo-interactive inline-flex items-center gap-2 bg-surface px-4 py-2.5 text-sm font-bold text-ink hover:bg-gemini-tint"
+            >
+              <Share2 className="h-4 w-4" aria-hidden="true" />
+              <span>{dict.hero.shareCta}</span>
+            </button>
+          )}
         </div>
       </div>
     </section>

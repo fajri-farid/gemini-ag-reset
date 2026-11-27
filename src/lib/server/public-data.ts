@@ -18,6 +18,7 @@ import {
 import type {
   PublicTrackerHomeData,
   PublicTrackerPayload,
+  ResetEvidence,
   ResetFeedCursor,
 } from "@/lib/types";
 import { getNotesRepository, type ListPublishedNotesOptions } from "./notes-repository";
@@ -34,6 +35,9 @@ export function revalidatePublicResets(): void {
   revalidateTag(RESETS_CACHE_TAG, { expire: 0 });
   revalidatePath("/");
   revalidatePath("/api/resets");
+  revalidatePath("/opengraph-image");
+  revalidatePath("/twitter-image");
+  revalidatePath("/share-preview");
 }
 
 export function revalidatePublicTrackerStatus(resetsChanged = false): void {
@@ -114,6 +118,13 @@ export async function getCachedPublicTrackerData(): Promise<PublicTrackerPayload
     syncStatus,
     generatedAt: now.toISOString(),
   };
+}
+
+export async function getCachedLatestPublicReset(): Promise<ResetEvidence | null> {
+  const [latest] = await getCachedResetArchive();
+  if (!latest) return null;
+  const { tweetId, tweetUrl, tweetText, resetAt } = latest;
+  return { tweetId, tweetUrl, tweetText, resetAt };
 }
 
 export async function getCachedPublicTrackerHomeData(): Promise<PublicTrackerHomeData> {

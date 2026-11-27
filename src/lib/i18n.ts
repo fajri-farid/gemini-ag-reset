@@ -28,6 +28,7 @@ export interface Dictionary {
     emptyDescription: string;
     viewTweetCta: string;
     viewLastTweetCta: string;
+    shareCta: string;
     noSummaryFallback: string;
   };
   metrics: {
@@ -58,9 +59,38 @@ export interface Dictionary {
     subtitle: string;
     emptyState: string;
     viewOnX: string;
+    shareItemLabel: string;
     loadMore: string;
     loadingMore: string;
     loadError: string;
+  };
+  share: {
+    dialogTitle: string;
+    dialogSubtitle: string;
+    closeLabel: string;
+    ratioLabel: string;
+    ratio4x5Label: string;
+    ratio4x5Hint: string;
+    ratio9x16Label: string;
+    ratio9x16Hint: string;
+    languageLabel: string;
+    timezoneLabel: string;
+    previewLabel: string;
+    previewLoading: string;
+    previewError: string;
+    retryPreview: string;
+    nativeShareCta: string;
+    nativeSharingCta: string;
+    downloadPngCta: string;
+    downloadPngFailed: string;
+    nativeShareFailed: string;
+    templatesHeading: string;
+    openWhatsappCta: string;
+    openXCta: string;
+    openThreadsCta: string;
+    copyTextCta: string;
+    copiedFeedback: string;
+    copyFailedFeedback: string;
   };
   notes: {
     title: string;
@@ -167,6 +197,7 @@ const EN_DICTIONARY: Dictionary = {
       "Announcements from @_mohansolo will appear here as soon as they are recorded.",
     viewTweetCta: "View Tweet on X",
     viewLastTweetCta: "View Last Reset Tweet",
+    shareCta: "Share",
     noSummaryFallback: "Gemini quota reset announced.",
   },
   metrics: {
@@ -197,9 +228,38 @@ const EN_DICTIONARY: Dictionary = {
     subtitle: "Every announcement, preserved for history",
     emptyState: "No resets recorded yet.",
     viewOnX: "View on X",
+    shareItemLabel: "Share",
     loadMore: "Load more announcements",
     loadingMore: "Loading announcements…",
     loadError: "Couldn't load more announcements. Try again.",
+  },
+  share: {
+    dialogTitle: "Share from Gemini Resets",
+    dialogSubtitle: "Download a PNG card or copy a message with the reset details.",
+    closeLabel: "Close share dialog",
+    ratioLabel: "Card format",
+    ratio4x5Label: "4:5 Feed",
+    ratio4x5Hint: "X, LinkedIn & Instagram",
+    ratio9x16Label: "9:16 Story",
+    ratio9x16Hint: "Instagram Stories & WhatsApp Status",
+    languageLabel: "Card and message language",
+    timezoneLabel: "Card and message time zone",
+    previewLabel: "Card preview",
+    previewLoading: "Rendering card preview…",
+    previewError: "Could not load the share card preview.",
+    retryPreview: "Retry",
+    nativeShareCta: "Share image",
+    nativeSharingCta: "Preparing image…",
+    downloadPngCta: "Download PNG",
+    downloadPngFailed: "Could not download the PNG. Try again.",
+    nativeShareFailed: "Could not open share sheet. Use Download PNG instead.",
+    templatesHeading: "Message template",
+    openWhatsappCta: "Open WhatsApp",
+    openXCta: "Open draft on X",
+    openThreadsCta: "Open draft on Threads",
+    copyTextCta: "Copy text",
+    copiedFeedback: "Copied!",
+    copyFailedFeedback: "Copy failed. Select the text manually.",
   },
   notes: {
     title: "Community notes",
@@ -326,6 +386,7 @@ const ID_DICTIONARY: Dictionary = {
       "Pengumuman dari @_mohansolo akan langsung tampil di sini begitu tercatat.",
     viewTweetCta: "Lihat Tweet di X",
     viewLastTweetCta: "Lihat Tweet Reset Terakhir",
+    shareCta: "Bagikan",
     noSummaryFallback: "Reset kuota Gemini diumumkan.",
   },
   metrics: {
@@ -356,9 +417,38 @@ const ID_DICTIONARY: Dictionary = {
     subtitle: "Setiap pengumuman, tersimpan rapi sebagai bukti",
     emptyState: "Belum ada reset yang tercatat.",
     viewOnX: "Lihat di X",
+    shareItemLabel: "Bagikan",
     loadMore: "Muat pengumuman lainnya",
     loadingMore: "Memuat pengumuman…",
     loadError: "Pengumuman gagal dimuat. Coba lagi.",
+  },
+  share: {
+    dialogTitle: "Bagikan dari Gemini Resets",
+    dialogSubtitle: "Unduh kartu PNG atau salin pesan berisi detail reset.",
+    closeLabel: "Tutup dialog bagikan",
+    ratioLabel: "Format kartu",
+    ratio4x5Label: "4:5 Feed",
+    ratio4x5Hint: "X, LinkedIn & Instagram",
+    ratio9x16Label: "9:16 Story",
+    ratio9x16Hint: "Instagram Stories & Status WhatsApp",
+    languageLabel: "Bahasa kartu dan pesan",
+    timezoneLabel: "Zona waktu kartu dan pesan",
+    previewLabel: "Pratinjau kartu",
+    previewLoading: "Membuat pratinjau kartu…",
+    previewError: "Pratinjau kartu gagal dimuat.",
+    retryPreview: "Coba lagi",
+    nativeShareCta: "Bagikan gambar",
+    nativeSharingCta: "Menyiapkan gambar…",
+    downloadPngCta: "Unduh PNG",
+    downloadPngFailed: "PNG gagal diunduh. Coba lagi.",
+    nativeShareFailed: "Gagal membuka menu bagikan. Gunakan Unduh PNG.",
+    templatesHeading: "Template pesan",
+    openWhatsappCta: "Buka WhatsApp",
+    openXCta: "Buka draf di X",
+    openThreadsCta: "Buka draf di Threads",
+    copyTextCta: "Salin teks",
+    copiedFeedback: "Tersalin!",
+    copyFailedFeedback: "Gagal menyalin. Salin teks secara manual.",
   },
   notes: {
     title: "Catatan komunitas",
