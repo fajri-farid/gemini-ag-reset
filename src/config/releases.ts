@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/site";
 
-export const CURRENT_VERSION = "0.1.0";
+export const CURRENT_VERSION = "0.2.0";
 export const CURRENT_TAG = `v${CURRENT_VERSION}`;
 
 export type ReleaseChangeCategory = "added" | "improved" | "fixed";
@@ -32,10 +32,43 @@ export function getGitHubReleaseUrl(tag: string): string {
 
 export const RELEASES: readonly ReleaseEntry[] = [
   {
+    version: "0.2.0",
+    tag: "v0.2.0",
+    publishedOn: "2026-11-27",
+    isLatest: true,
+    content: {
+      en: {
+        title: "Community Notes & Site Love",
+        summary:
+          "Share a note with the Gemini Resets community or tap the heart to show your support.",
+        sections: {
+          added: [
+            "Community Notes on the home page, with a shortcut to the wall on desktop and mobile.",
+            "Write a note with a live preview, five designs, five colors or a random color, and an optional mood.",
+            "Browse the full notes archive and filter by mood or Loved by maker.",
+            "Tap the Site Love heart to show your support without signing in.",
+          ],
+        },
+      },
+      id: {
+        title: "Catatan Komunitas & Tombol Love",
+        summary:
+          "Tulis catatan untuk komunitas Gemini Resets atau ketuk tombol hati untuk memberi dukungan.",
+        sections: {
+          added: [
+            "Catatan Komunitas di beranda, dengan pintasan ke dinding catatan di desktop dan ponsel.",
+            "Tulis catatan dengan pratinjau langsung, lima desain, lima warna atau pilihan acak, dan suasana hati opsional.",
+            "Jelajahi arsip catatan dan saring berdasarkan suasana hati atau Disukai pembuat.",
+            "Ketuk tombol Love untuk memberi dukungan tanpa login.",
+          ],
+        },
+      },
+    },
+  },
+  {
     version: "0.1.0",
     tag: "v0.1.0",
     publishedOn: "2026-11-27",
-    isLatest: true,
     content: {
       en: {
         title: "Initial Public Release",

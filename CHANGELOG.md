@@ -5,6 +5,17 @@ All notable changes to **Gemini Resets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-11-27
+
+Share a note with the Gemini Resets community or tap the heart to show your support.
+
+### Added
+
+- **Community Notes** on the home page, with a shortcut to the wall on desktop and mobile.
+- **Write a note** with a live preview, five designs, five colors or a random color, and an optional mood.
+- Browse the full notes archive and filter by mood or **Loved by maker**.
+- Tap the **Site Love** heart to show your support without signing in.
+
 ## [0.1.0] - 2026-11-27
 
 First public release of **Gemini Resets** for tracking `@_mohansolo` Gemini quota reset announcements in Antigravity.
@@ -19,4 +30,5 @@ First public release of **Gemini Resets** for tracking `@_mohansolo` Gemini quot
 - Automated hourly checks for new reset announcements with a live "Last checked" status indicator.
 - Version badge and dedicated `/changelog` page to follow future product updates.
 
+[0.2.0]: https://github.com/fajri-farid/gemini-ag-reset/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fajri-farid/gemini-ag-reset/releases/tag/v0.1.0
