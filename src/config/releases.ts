@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/site";
 
-export const CURRENT_VERSION = "0.3.0";
+export const CURRENT_VERSION = "0.4.0";
 export const CURRENT_TAG = `v${CURRENT_VERSION}`;
 
 export type ReleaseChangeCategory = "added" | "improved" | "fixed";
@@ -32,10 +32,41 @@ export function getGitHubReleaseUrl(tag: string): string {
 
 export const RELEASES: readonly ReleaseEntry[] = [
   {
+    version: "0.4.0",
+    tag: "v0.4.0",
+    publishedOn: "2026-11-28",
+    isLatest: true,
+    content: {
+      en: {
+        title: "Reset Alerts",
+        summary:
+          "Get a browser notification when a Gemini quota reset is announced in Antigravity.",
+        sections: {
+          added: [
+            "Select Notify me on the home page and allow notifications. You can turn on alerts without signing in.",
+            "Select Turn off alerts on the home page whenever you want to stop receiving them.",
+            "On iPhone or iPad, add Gemini Resets to your Home Screen before turning on alerts.",
+          ],
+        },
+      },
+      id: {
+        title: "Notifikasi Reset",
+        summary:
+          "Dapatkan notifikasi di browser saat ada pengumuman reset kuota Gemini di Antigravity.",
+        sections: {
+          added: [
+            "Pilih Ingatkan saya di beranda, lalu izinkan notifikasi. Kamu bisa mengaktifkannya tanpa login.",
+            "Pilih Matikan notifikasi di beranda kapan saja untuk berhenti menerima notifikasi.",
+            "Di iPhone atau iPad, tambahkan Gemini Resets ke Layar Utama sebelum mengaktifkan notifikasi.",
+          ],
+        },
+      },
+    },
+  },
+  {
     version: "0.3.0",
     tag: "v0.3.0",
     publishedOn: "2026-11-27",
-    isLatest: true,
     content: {
       en: {
         title: "Share Reset Updates",
