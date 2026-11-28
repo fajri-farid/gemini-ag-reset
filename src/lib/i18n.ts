@@ -30,6 +30,23 @@ export interface Dictionary {
     viewLastTweetCta: string;
     shareCta: string;
     noSummaryFallback: string;
+    push: {
+      notifyCta: string;
+      notifyingCta: string;
+      retryDisableCta: string;
+      disableErrorHint: string;
+      loadingCta: string;
+      enabledFeedback: string;
+      disabledFeedback: string;
+      permissionDeniedHint: string;
+      iosInstallHint: string;
+      unsupportedHint: string;
+      errorHint: string;
+      confirmDisableTitle: string;
+      confirmDisableDescription: string;
+      confirmDisableCancel: string;
+      confirmDisableConfirm: string;
+    };
   };
   metrics: {
     totalResets: string;
@@ -199,6 +216,26 @@ const EN_DICTIONARY: Dictionary = {
     viewLastTweetCta: "View Last Reset Tweet",
     shareCta: "Share",
     noSummaryFallback: "Gemini quota reset announced.",
+    push: {
+      notifyCta: "Notify me",
+      notifyingCta: "Turn off alerts…",
+      retryDisableCta: "Finish turning off",
+      disableErrorHint: "We couldn't finish turning off alerts. Try again.",
+      loadingCta: "Updating…",
+      enabledFeedback: "Reset alerts enabled for this browser.",
+      disabledFeedback: "Reset alerts turned off for this browser.",
+      permissionDeniedHint:
+        "Notifications are blocked in your browser settings. Allow them for this site to enable alerts.",
+      iosInstallHint:
+        "On iPhone/iPad, tap Share and choose 'Add to Home Screen' first to enable reset alerts.",
+      unsupportedHint: "Push notifications are not supported in this browser.",
+      errorHint: "Could not update notification settings. Try again shortly.",
+      confirmDisableTitle: "Turn off reset alerts?",
+      confirmDisableDescription:
+        "You won't receive browser alerts when @_mohansolo announces a new Gemini quota reset. You can turn them back on anytime.",
+      confirmDisableCancel: "Keep alerts on",
+      confirmDisableConfirm: "Turn off",
+    },
   },
   metrics: {
     totalResets: "Resets",
@@ -388,6 +425,26 @@ const ID_DICTIONARY: Dictionary = {
     viewLastTweetCta: "Lihat Tweet Reset Terakhir",
     shareCta: "Bagikan",
     noSummaryFallback: "Reset kuota Gemini diumumkan.",
+    push: {
+      notifyCta: "Ingatkan saya",
+      notifyingCta: "Matikan notifikasi…",
+      retryDisableCta: "Selesaikan penonaktifan",
+      disableErrorHint: "Notifikasi belum berhasil dimatikan. Coba lagi.",
+      loadingCta: "Memproses…",
+      enabledFeedback: "Notifikasi reset diaktifkan untuk browser ini.",
+      disabledFeedback: "Notifikasi reset dimatikan untuk browser ini.",
+      permissionDeniedHint:
+        "Izin notifikasi diblokir di pengaturan browser. Izinkan notifikasi untuk situs ini terlebih dahulu.",
+      iosInstallHint:
+        "Di iPhone/iPad, ketuk Share lalu pilih 'Add to Home Screen' dulu agar notifikasi reset bisa aktif.",
+      unsupportedHint: "Browser ini belum mendukung notifikasi push.",
+      errorHint: "Gagal mengubah pengaturan notifikasi. Coba lagi sebentar.",
+      confirmDisableTitle: "Matikan notifikasi reset?",
+      confirmDisableDescription:
+        "Kamu tidak akan menerima notifikasi browser saat @_mohansolo mengumumkan reset kuota Gemini baru. Kamu bisa mengaktifkannya lagi kapan saja.",
+      confirmDisableCancel: "Tetap aktifkan",
+      confirmDisableConfirm: "Matikan",
+    },
   },
   metrics: {
     totalResets: "Total reset",

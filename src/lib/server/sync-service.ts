@@ -23,6 +23,7 @@ import {
 export interface RunSyncOptions {
   trigger: SyncTrigger;
   dryRun?: boolean;
+  notifyNewResets?: boolean;
   repository?: ResetRepository;
   xProvider?: XDataProvider;
   classifier?: ResetClassifier;
@@ -147,6 +148,7 @@ export async function runSync(options: RunSyncOptions): Promise<RunSyncResult> {
     if (qualifies && !dryRun) {
       try {
         const saved = await repo.upsertReset({
+          ...(options.notifyNewResets ? { notify: "new" as const } : {}),
           tweetId: tweet.tweetId,
           tweetUrl: tweet.tweetUrl,
           tweetText: tweet.tweetText,

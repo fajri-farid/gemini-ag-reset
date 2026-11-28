@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { AdminNotesManager } from "@/components/admin/AdminNotesManager";
+import { AdminPushPanel } from "@/components/admin/AdminPushPanel";
 import { AdminResetsManager } from "@/components/admin/AdminResetsManager";
 import { AdminSyncLogsTable } from "@/components/admin/AdminSyncLogsTable";
 import { AdminSyncPanel } from "@/components/admin/AdminSyncPanel";
@@ -25,23 +26,27 @@ import {
   fetchAdminDashboard,
   fetchAdminLogs,
   fetchAdminNotes,
+  fetchAdminPushStatus,
   reorderAdminPinnedNotes,
+  sendAdminTestPush,
   triggerAdminSync,
   updateAdminNote,
   updateManualReset,
   updateTrackingStartedAt,
+  type AdminPushStatusResponse,
   type AdminSyncResponse,
   type CreateManualResetInput,
   type UpdateAdminNoteInput,
   type UpdateManualResetInput,
 } from "@/lib/admin-api";
+import { type SerializedPushSubscription } from "@/lib/push-client";
 import {
   createGoogleAuthProvider,
   getFirebaseClientAuth,
   getMissingFirebaseClientEnvVars,
 } from "@/lib/firebase-client";
 import { sortStickyNotes, type NotesCursor, type SiteStats, type StickyNote } from "@/lib/sticky-notes";
-import type { ResetRecord, SyncLog, SyncStatus } from "@/lib/types";
+import type { Locale, ResetRecord, SyncLog, SyncStatus } from "@/lib/types";
 
 interface FeedbackBanner {
   tone: "success" | "error";
@@ -70,6 +75,9 @@ export function AdminAuthGate() {
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
   const [notesError, setNotesError] = useState<string | null>(null);
   const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
+  const [pushStatus, setPushStatus] = useState<AdminPushStatusResponse | null>(
+    null,
+  );
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncingMode, setSyncingMode] = useState<"live" | "dry_run" | null>(
@@ -85,14 +93,16 @@ export function AdminAuthGate() {
 
     try {
       const idToken = await currentUser.getIdToken();
-      const [dashboard, logsResponse] = await Promise.all([
+      const [dashboard, logsResponse, nextPushStatus] = await Promise.all([
         fetchAdminDashboard(idToken),
         fetchAdminLogs(idToken, 50),
+        fetchAdminPushStatus(idToken).catch(() => null),
       ]);
 
       setResets(dashboard.resets);
       setSyncStatus(dashboard.syncStatus);
       setLogs(logsResponse.logs);
+      setPushStatus(nextPushStatus);
     } catch (err) {
       if (err instanceof AdminApiError) {
         setAccessError({ status: err.status, message: err.message });
@@ -132,6 +142,7 @@ export function AdminAuthGate() {
         setNotesCursor(null);
         setNotesError(null);
         setSiteStats(null);
+        setPushStatus(null);
         setLastSyncResult(null);
       }
     });
@@ -180,14 +191,31 @@ export function AdminAuthGate() {
 
   const handleCreateReset = async (input: CreateManualResetInput) => {
     const token = await withIdToken();
-    await createManualReset(token, input);
+    const { pushRequested } = await createManualReset(token, input);
     if (user) {
       await loadAdminData(user);
     }
+    const pushNote = pushRequested
+      ? " Push delivery requested."
+      : input.sendPush ? " Web Push is currently unavailable." : "";
     setFeedback({
       tone: "success",
-      message: "Reset record saved and public cache revalidated.",
+      message: `Reset record saved and public cache revalidated.${pushNote}`,
     });
+  };
+
+  const handleRefreshPushStatus = async () => {
+    const token = await withIdToken();
+    const nextStatus = await fetchAdminPushStatus(token);
+    setPushStatus(nextStatus);
+  };
+
+  const handleSendTestPush = async (
+    subscription: SerializedPushSubscription,
+    locale: Locale,
+  ) => {
+    const token = await withIdToken();
+    await sendAdminTestPush(token, subscription, locale);
   };
 
   const handleUpdateReset = async (
@@ -600,6 +628,12 @@ export function AdminAuthGate() {
               Loading sync status...
             </div>
           )}
+
+          <AdminPushPanel
+            pushStatus={pushStatus}
+            onRefreshPushStatus={handleRefreshPushStatus}
+            onSendTestPush={handleSendTestPush}
+          />
 
           <AdminResetsManager
             resets={resets}

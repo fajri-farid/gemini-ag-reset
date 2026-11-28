@@ -2,7 +2,9 @@ import { after, NextResponse } from "next/server";
 import { verifyCronRequest } from "@/lib/server/cron-auth";
 import { isFirebaseAdminConfigured } from "@/lib/server/firebase-admin";
 import { revalidatePublicTrackerStatus } from "@/lib/server/public-data";
-import { pruneCommunityBuckets } from "@/lib/server/rate-limit";
+import { drainPushJobsSafely } from "@/lib/server/push-outbox";
+import { isWebPushConfigured } from "@/lib/server/push-service";
+import { pruneRateLimitBuckets } from "@/lib/server/rate-limit";
 import { runSync } from "@/lib/server/sync-service";
 
 export async function POST(request: Request) {
@@ -16,15 +18,17 @@ export async function POST(request: Request) {
 
   after(async () => {
     try {
-      await pruneCommunityBuckets();
+      await pruneRateLimitBuckets();
     } catch {
-      console.error("Community bucket cleanup failed.");
+      console.error("Rate limit bucket cleanup failed.");
     }
   });
 
+  after(drainPushJobsSafely);
   const result = await runSync({
     trigger: "cron",
     dryRun: false,
+    notifyNewResets: isWebPushConfigured(),
     onRevalidate: revalidatePublicTrackerStatus,
   });
 

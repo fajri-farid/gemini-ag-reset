@@ -1,5 +1,6 @@
 import { noteCursorParams, type NotesCursor, type SiteStats, type StickyNote, type StickyNoteStatus } from "./sticky-notes";
-import type { ResetRecord, SyncLog, SyncStatus } from "./types";
+import type { SerializedPushSubscription } from "./push-client";
+import type { Locale, ResetRecord, SyncLog, SyncStatus } from "./types";
 
 export interface AdminDashboardResponse {
   resets: ResetRecord[];
@@ -29,11 +30,17 @@ export interface AdminSyncResponse {
   savedResets: ResetRecord[];
 }
 
+export interface AdminPushStatusResponse {
+  configured: boolean;
+  subscriberCount: number;
+}
+
 export interface CreateManualResetInput {
   tweetUrlOrId: string;
   tweetText: string;
   summary: string | null;
   resetAt: string;
+  sendPush?: boolean;
 }
 
 export interface UpdateManualResetInput {
@@ -174,8 +181,11 @@ export async function fetchAdminLogs(
 export async function createManualReset(
   idToken: string,
   input: CreateManualResetInput,
-): Promise<{ reset: ResetRecord }> {
-  return requestAdminJson<{ reset: ResetRecord }>(
+): Promise<{ reset: ResetRecord; pushRequested: boolean }> {
+  return requestAdminJson<{
+    reset: ResetRecord;
+    pushRequested: boolean;
+  }>(
     "/api/admin/resets",
     idToken,
     {
@@ -284,4 +294,25 @@ export async function deleteAdminNote(
     idToken,
     { method: "DELETE" },
   );
+}
+
+export async function fetchAdminPushStatus(
+  idToken: string,
+): Promise<AdminPushStatusResponse> {
+  return requestAdminJson<AdminPushStatusResponse>(
+    "/api/admin/push",
+    idToken,
+    { method: "GET" },
+  );
+}
+
+export async function sendAdminTestPush(
+  idToken: string,
+  subscription: SerializedPushSubscription,
+  locale: Locale,
+): Promise<{ ok: boolean }> {
+  return requestAdminJson<{ ok: boolean }>("/api/admin/push", idToken, {
+    method: "POST",
+    body: JSON.stringify({ subscription, locale }),
+  });
 }

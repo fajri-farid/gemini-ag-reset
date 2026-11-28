@@ -4,6 +4,7 @@ import { siteConfig } from "@/config/site";
 import { formatRelativeTime, formatTimestamp } from "@/lib/datetime";
 import type { Dictionary } from "@/lib/i18n";
 import type { HeroState, Locale, ResetEvidence } from "@/lib/types";
+import { PushNotifyButton } from "./PushNotifyButton";
 
 interface HeroStatusCardProps {
   heroState: HeroState;
@@ -51,7 +52,7 @@ export function HeroStatusCard({
             {dict.hero.emptyDescription}
           </p>
 
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <a
               href={siteConfig.targetAccount.profileUrl}
               target="_blank"
@@ -61,6 +62,7 @@ export function HeroStatusCard({
               <span>{dict.header.viewProfile}</span>
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </a>
+            <PushNotifyButton dict={dict} locale={locale} />
           </div>
         </div>
       </section>
@@ -147,6 +149,8 @@ export function HeroStatusCard({
               <span>{dict.hero.shareCta}</span>
             </button>
           )}
+
+          <PushNotifyButton dict={dict} locale={locale} />
         </div>
       </div>
     </section>

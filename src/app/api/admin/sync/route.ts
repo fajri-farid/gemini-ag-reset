@@ -1,7 +1,9 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyAdminRequest } from "@/lib/server/admin-auth";
 import { revalidatePublicTrackerStatus } from "@/lib/server/public-data";
+import { drainPushJobsSafely } from "@/lib/server/push-outbox";
+import { isWebPushConfigured } from "@/lib/server/push-service";
 import { runSync } from "@/lib/server/sync-service";
 
 const TriggerSyncSchema = z.object({
@@ -36,9 +38,11 @@ export async function POST(request: Request) {
   }
 
   const dryRun = parsed.data.dryRun;
+  if (!dryRun) after(drainPushJobsSafely);
   const result = await runSync({
     trigger: dryRun ? "admin_dry_run" : "admin_live",
     dryRun,
+    notifyNewResets: !dryRun && isWebPushConfigured(),
     onRevalidate: revalidatePublicTrackerStatus,
   });
 

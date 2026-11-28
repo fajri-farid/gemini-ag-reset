@@ -1,7 +1,9 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyAdminRequest } from "@/lib/server/admin-auth";
 import { revalidatePublicResets } from "@/lib/server/public-data";
+import { drainPushJobsSafely } from "@/lib/server/push-outbox";
+import { isWebPushConfigured } from "@/lib/server/push-service";
 import { getResetRepository } from "@/lib/server/reset-repository";
 import {
   buildCanonicalTweetUrl,
@@ -23,6 +25,7 @@ const CreateManualResetSchema = z.object({
       (value) => !Number.isNaN(new Date(value).getTime()),
       "Invalid resetAt timestamp.",
     ),
+  sendPush: z.boolean().optional().default(false),
 });
 
 export async function GET(request: Request) {
@@ -78,7 +81,9 @@ export async function POST(request: Request) {
   }
 
   const repo = getResetRepository();
+  const pushRequested = parsed.data.sendPush && isWebPushConfigured();
   const reset = await repo.upsertReset({
+    ...(pushRequested ? { notify: "requested" as const } : {}),
     tweetId,
     tweetUrl: buildCanonicalTweetUrl(tweetId),
     tweetText: parsed.data.tweetText,
@@ -90,5 +95,7 @@ export async function POST(request: Request) {
 
   revalidatePublicResets();
 
-  return NextResponse.json({ reset }, { status: 201 });
+  if (pushRequested) after(drainPushJobsSafely);
+
+  return NextResponse.json({ reset, pushRequested }, { status: 201 });
 }

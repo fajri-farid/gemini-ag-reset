@@ -66,6 +66,7 @@ export function AdminResetsManager({
   );
   const [tweetText, setTweetText] = useState("");
   const [summary, setSummary] = useState("");
+  const [sendPush, setSendPush] = useState(false);
 
   const [touched, setTouched] = useState<TouchedFields>(INITIAL_TOUCHED);
   const [submitted, setSubmitted] = useState(false);
@@ -110,6 +111,7 @@ export function AdminResetsManager({
     setResetAtLocal(isoToDatetimeLocalValue(new Date().toISOString()));
     setTweetText("");
     setSummary("");
+    setSendPush(false);
     setTouched(INITIAL_TOUCHED);
     setSubmitted(false);
     setFormError(null);
@@ -149,6 +151,7 @@ export function AdminResetsManager({
           tweetText: trimmedTweetText,
           summary: summary.trim() || null,
           resetAt: parsedResetAtIso,
+          sendPush,
         });
       }
       resetFormToCreate();
@@ -397,6 +400,20 @@ export function AdminResetsManager({
             </span>
           </button>
         </div>
+
+        {!editingTweetId && (
+          <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs font-semibold text-ink">
+            <input
+              type="checkbox"
+              checked={sendPush}
+              onChange={(event) => setSendPush(event.target.checked)}
+              className="h-4 w-4 rounded border-2 border-ink accent-gemini-blue"
+            />
+            <span>
+              Send push notification to subscribers (leave unchecked for historical backfill)
+            </span>
+          </label>
+        )}
 
         {formError && (
           <p

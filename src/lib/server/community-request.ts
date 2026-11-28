@@ -2,6 +2,7 @@ import "server-only";
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { isFirebaseAdminConfigured } from "./firebase-admin";
+import { isSameOrigin, readBoundedJson } from "./request-json";
 
 function visitorCookieName() {
   return process.env.NODE_ENV === "production" ? "__Host-gemini_community" : "gemini_community";
@@ -31,25 +32,6 @@ export function isValidCommunityCursor(value: string, signature: string | null) 
 
 export function communityError(status: number, code: string) {
   return NextResponse.json({ code }, { status, headers: { "Cache-Control": "no-store" } });
-}
-
-function isSameOrigin(request: NextRequest) {
-  const site = request.headers.get("sec-fetch-site");
-  const origin = request.headers.get("origin");
-  if (site && site !== "same-origin") return false;
-  if (!origin) return true;
-
-  // Next can use an internal hostname for nextUrl when it runs behind its server.
-  const host = request.headers.get("host") ?? request.nextUrl.host;
-  const forwarded = process.env.VERCEL === "1" ? request.headers.get("x-forwarded-proto") : null;
-  const protocol = forwarded === "https" || forwarded === "http"
-    ? forwarded + ":"
-    : request.nextUrl.protocol;
-  try {
-    return origin === new URL(protocol + "//" + host).origin;
-  } catch {
-    return false;
-  }
 }
 
 function readVisitor(request: NextRequest, key: string) {
@@ -91,29 +73,7 @@ export async function readCommunityMutation(
   }
   const visitor = readVisitor(request, key);
   if (!visitor) return { response: communityError(401, "visitor_session_required") };
-  if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
-    return { response: communityError(415, "validation_failed") };
-  }
-  const reader = request.body?.getReader();
-  if (!reader) return { response: communityError(400, "validation_failed") };
-  try {
-    const decoder = new TextDecoder("utf-8", { fatal: true });
-    let bytes = 0;
-    let source = "";
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      bytes += value.byteLength;
-      if (bytes > maxBytes) {
-        void reader.cancel().catch(() => {});
-        return { response: communityError(413, "validation_failed") };
-      }
-      source += decoder.decode(value, { stream: true });
-    }
-    return { body: JSON.parse(source + decoder.decode()), visitor };
-  } catch {
-    return { response: communityError(400, "validation_failed") };
-  } finally {
-    reader.releaseLock();
-  }
+  const json = await readBoundedJson(request, maxBytes);
+  if ("status" in json) return { response: communityError(json.status, "validation_failed") };
+  return { body: json.body, visitor };
 }

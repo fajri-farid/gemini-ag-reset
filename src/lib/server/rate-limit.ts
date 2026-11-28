@@ -1,4 +1,6 @@
 import "server-only";
+import { createHash } from "node:crypto";
+import { isIP } from "node:net";
 import { Timestamp } from "firebase-admin/firestore";
 import { MS_PER_DAY } from "@/lib/datetime";
 import { MAX_HOURLY_NOTES_PER_VISITOR } from "@/lib/sticky-notes";
@@ -7,6 +9,32 @@ import { getAdminFirestore, isFirebaseAdminConfigured } from "./firebase-admin";
 export const RATE_LIMITS_COLLECTION = "rate_limits";
 const DEFAULT_DAILY_MODERATION_LIMIT = 100;
 const MAX_DAILY_MODERATION_LIMIT = 300;
+
+export async function reservePushAttempt(request: Request, action: "subscribe" | "unsubscribe"): Promise<boolean> {
+  const db = getAdminFirestore();
+  const now = new Date();
+  const iso = now.toISOString();
+  const ip = process.env.VERCEL === "1" ? request.headers.get("x-vercel-forwarded-for") : null;
+  const buckets = db.collection(RATE_LIMITS_COLLECTION);
+  const global = buckets.doc(`push_${action}_${iso.slice(0, 10)}`);
+  const visitor = ip && isIP(ip)
+    ? buckets.doc(`push_${action}_${createHash("sha256").update(ip).digest("hex")}_${iso.slice(0, 13)}`)
+    : null;
+
+  return db.runTransaction(async (tx) => {
+    const [globalSnap, visitorSnap] = await Promise.all([
+      tx.get(global),
+      visitor ? tx.get(visitor) : null,
+    ]);
+    const total = (globalSnap.get("count") as number | undefined) ?? 0;
+    const perVisitor = (visitorSnap?.get("count") as number | undefined) ?? 0;
+    if (total >= 500 || perVisitor >= 15) return false;
+    const expiresAt = retentionDate(now);
+    tx.set(global, { count: total + 1, expiresAt });
+    if (visitor) tx.set(visitor, { count: perVisitor + 1, expiresAt });
+    return true;
+  });
+}
 
 function getDailyModerationLimit() {
   const configured = Number(process.env.COMMUNITY_MODERATION_DAILY_LIMIT);
@@ -77,7 +105,7 @@ export function getRateLimiter(): RateLimiter {
   };
 }
 
-export async function pruneCommunityBuckets(): Promise<void> {
+export async function pruneRateLimitBuckets(): Promise<void> {
   const db = getAdminFirestore();
   const buckets = db.collection(RATE_LIMITS_COLLECTION);
   const now = Timestamp.now();

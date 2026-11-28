@@ -14,6 +14,7 @@ import type {
   SyncTrigger,
 } from "@/lib/types";
 import { getAdminFirestore, isFirebaseAdminConfigured } from "./firebase-admin";
+import { createPushJob, PUSH_JOBS_COLLECTION } from "./push-outbox";
 
 export const MAX_SYNC_LOGS = 50;
 
@@ -26,6 +27,7 @@ export const COLLECTIONS = {
 export const SYNC_STATUS_DOC_ID = "main";
 
 export interface UpsertResetInput {
+  notify?: "new" | "requested";
   tweetId: string;
   tweetUrl?: string;
   tweetText: string;
@@ -298,26 +300,28 @@ export class FirestoreResetRepository implements ResetRepository {
 
   async upsertReset(input: UpsertResetInput): Promise<ResetRecord> {
     const docRef = this.db.collection(COLLECTIONS.resets).doc(input.tweetId);
-    const nowIso = new Date().toISOString();
-    const existingSnap = await docRef.get();
-    const existingData = existingSnap.exists ? existingSnap.data() : undefined;
-
-    const record: ResetRecord = {
-      tweetId: input.tweetId,
-      tweetUrl: input.tweetUrl ?? buildCanonicalTweetUrl(input.tweetId),
-      tweetText: input.tweetText,
-      summary: input.summary ?? null,
-      confidence: input.confidence ?? null,
-      source: input.source,
-      resetAt: input.resetAt,
-      createdAt: existingData
-        ? toIsoString(existingData.createdAt, nowIso)
-        : nowIso,
-      updatedAt: nowIso,
-    };
-
-    await docRef.set(record);
-    return record;
+    return this.db.runTransaction(async (tx) => {
+      const existing = await tx.get(docRef);
+      const shouldQueue = input.notify === "requested" || (input.notify === "new" && !existing.exists);
+      const jobRef = shouldQueue ? this.db.collection(PUSH_JOBS_COLLECTION).doc(input.tweetId) : null;
+      const job = jobRef ? await tx.get(jobRef) : null;
+      const now = Date.now();
+      const nowIso = new Date(now).toISOString();
+      const record: ResetRecord = {
+        tweetId: input.tweetId,
+        tweetUrl: input.tweetUrl ?? buildCanonicalTweetUrl(input.tweetId),
+        tweetText: input.tweetText,
+        summary: input.summary ?? null,
+        confidence: input.confidence ?? null,
+        source: input.source,
+        resetAt: input.resetAt,
+        createdAt: toIsoString(existing.get("createdAt"), nowIso),
+        updatedAt: nowIso,
+      };
+      tx.set(docRef, record);
+      if (jobRef && !job?.exists) tx.create(jobRef, createPushJob(record, now));
+      return record;
+    });
   }
 
   async updateReset(
